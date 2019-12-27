@@ -1,0 +1,9 @@
+{
+  "short_name": "Blog",
+  "name": "Personal Blog - Norbert Logiewa",
+  "icons": [],
+  "start_url": ".",
+  "display": "browser",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
