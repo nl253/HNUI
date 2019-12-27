@@ -16,64 +16,9 @@ import {
   ToastBody,
   ToastHeader,
 } from 'reactstrap';
+import {Comment} from './comment';
+import {fmtUNIXTime} from './utils';
 
-/**
- * @param {number} tm
- * @return {string}
- */
-const fmtUNIXTime = tm => {
-  const date = new Date(tm * 1000);
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-};
-
-class Comment extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isVisible: false,
-      collapsed: false,
-      text: null,
-      comment: null,
-    };
-    this.init();
-  }
-
-  async init() {
-    const comment = await loadItem(this.props.id);
-    this.setState({
-      comment,
-      isVisible: comment.type === 'comment' && comment.text,
-    });
-  }
-
-  toggle() {
-    this.setState(({ collapsed }) => ({collapsed: !collapsed}));
-  }
-
-  render() {
-    return (
-      this.state.isVisible ?
-        (
-          <div className="p-2 rounded m-2" style={{background: `hsl(0, 0%, ${93 - this.props.depth * 8}%)`}}>
-            <p className="font-weight-bold">{this.state.comment.by}</p>
-            <p className="font-italic">{fmtUNIXTime(this.state.comment.time)}</p>
-            <p dangerouslySetInnerHTML={{__html: parser(lexer(this.state.comment.text || ''))}}/>
-            {(this.state.comment.kids || []).length > 0 &&
-              (
-                <Button color={!this.state.collapsed ? 'warning' : 'info'} size="sm" className="mb-2" onClick={() => this.toggle()}>
-                  {this.state.collapsed ? `show ${(this.state.comment.kids || []).length || 0}` : 'hide'}
-                </Button>
-              )
-            }
-            <ol style={{display: this.state.collapsed ? 'none' : 'block', paddingLeft: `${this.props.depth * 7}px`}}>
-              {(this.state.comment.kids || []).map((id, cIdx) => <Comment depth={this.props.depth + 1} key={cIdx} id={id} />)}
-            </ol>
-          </div>
-        )
-        : null
-    );
-  }
-}
 
 class App extends Component {
   constructor(props) {
@@ -87,6 +32,7 @@ class App extends Component {
       comments: [],
       loading: ['storyList'],
     };
+    this.setUser = this.setUser.bind(this);
     this.init();
   }
 
@@ -167,9 +113,10 @@ class App extends Component {
   render() {
     return (
       this.didLoad('storyList') &&
-      <div>
-        <main>
-          <section>
+      <div className="container-fluid">
+        <main className="row">
+          <section className="col-3">
+            <h1>Hacker News</h1>
             <ListGroup>
               {this.state.storyList.map((story, idx) => (
                   <ListGroupItem key={idx}
@@ -195,7 +142,7 @@ class App extends Component {
               )}
             </ListGroup>
           </section>
-          <section>
+          <section className="col-9">
             {this.state.story && (
               <div>
                 <h2><a href={this.state.story.url}>{this.state.story.title}</a></h2>
@@ -211,7 +158,7 @@ class App extends Component {
                 <div className="ml-1 mr-2">
                   <h3>Comments</h3>
                   <ol style={{paddingLeft: 0}}>
-                    {(this.state.story.kids || []).map((id, idx) => <Comment depth={1} key={idx} id={id}/>)}
+                    {(this.state.story.kids || []).map((id, idx) => <Comment setUser={this.setUser.bind(this)} depth={1} key={idx} id={id}/>)}
                   </ol>
                 </div>
               </div>
@@ -219,16 +166,16 @@ class App extends Component {
           </section>
         </main>
         {this.state.user && (
-          <Toast style={{position: 'fixed', bottom: '10px', right: '10px'}}
-                 onClick={() => this.clearUser()}>
+          <Toast style={{position: 'fixed', bottom: '10px', right: '10px'}}>
             <ToastHeader>
               User <span>{this.state.user.id}</span> <span>(<span>{this.state.user.karma}</span> karma)</span>
             </ToastHeader>
             <ToastBody>
               <p>
-                Created <span>{(new Date(this.state.user.created)).toDateString()}</span>
+                Created <span>{fmtUNIXTime(this.state.user.created)}</span>
               </p>
-              <p dangerouslySetInnerHTML={{__html: this.state.user.about}}/>
+              <p dangerouslySetInnerHTML={{__html: parser(lexer(this.state.user.about || ''))}}/>
+              <Button size="sm" onClick={() => this.clearUser()} color="danger">Close</Button>
             </ToastBody>
           </Toast>
         )}

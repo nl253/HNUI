@@ -76,7 +76,7 @@ const load = async (what , id) => {
  * @param {number} [take]
  * @return {Promise<Item[]>}
  */
-const loadStories = async (what = 'topstories', take = 10) => {
+const loadStories = async (what = 'topstories', take = 80) => {
   const ids = await loadList(take, what);
   const reqs = ids.map(id => loadItem(id));
   const stories = await Promise.all(reqs);
