@@ -1,0 +1,60 @@
+{
+  "name": "hn_ui",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "marked": "^0.8.0",
+    "react-scripts": "3.3.0",
+    "node-sass": "^4.11.0",
+    "reactstrap": "^8.2.0",
+    "bootstrap": "^4.2.1",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "readme": "https://github.com/nl253/HNUI/blob/master/README.md",
+  "keywords": [
+    "hn",
+    "ui",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nl253/HNUI"
+  },
+  "homepage": "https://hn-nl.herokuapp.com",
+  "engineStrict": true,
+  "bugs": {
+    "email": "norbertlogiewa96@gmail.com",
+    "url": "https://github.com/nl253/HNUI/issues"
+  },
+  "author": {
+    "email": "norbertlogiewa96@gmail.com",
+    "name": "Norber Logiewa",
+    "url": "https://github.com/nl253"
+  },
+  "engines": {
+    "node": ">= 10.15.1",
+    "npm": ">= 6.4.1"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
