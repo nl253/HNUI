@@ -6,19 +6,21 @@ import {author} from '../package.json';
 import {lexer, parser} from 'marked';
 
 import './index.scss';
-import {loadItem, loadStories, loadUser} from './api';
+import {LIST_LEN, loadStories, loadUser} from './api';
 import {
   Badge,
   Button,
   ListGroup,
   ListGroupItem,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
   Toast,
   ToastBody,
   ToastHeader,
 } from 'reactstrap';
 import {Comment} from './comment';
 import {fmtUNIXTime} from './utils';
-
 
 class App extends Component {
   constructor(props) {
@@ -28,16 +30,27 @@ class App extends Component {
     this.state = {
       story: null,
       user: null,
+      page: 0,
+      pageSize: 15,
+      take: 15 * 6,
       storyList: [],
       comments: [],
-      loading: ['storyList'],
+      loading: [],
     };
     this.setUser = this.setUser.bind(this);
-    this.init();
+    setImmediate(() => this.refreshStories());
   }
 
-  async init() {
-    this.setState( { storyList: await loadStories() });
+  async refreshStories() {
+    this.beginLoading('storyList');
+    this.setState( {
+      storyList: await loadStories(
+        'topstories',
+        this.state.take,
+        this.state.page,
+        this.state.pageSize,
+      ),
+    });
     this.endLoading('storyList');
   }
 
@@ -71,21 +84,24 @@ class App extends Component {
     return item.reduce((prev, focus) => prev && this.state.loading.indexOf(focus) < 0, true);
   }
 
+
   /**
-   * @param {Item}
-   * @return {Promise<void>}
+   * @return {number}
    */
-  async setStory({ id }) {
-    this.beginLoading('story');
-    this.setState({
-      story: await loadItem(id),
-    });
-    this.endLoading('story');
+  get pageCount() {
+    return Math.ceil(this.state.take / this.state.pageSize);
   }
 
   /**
-   * @return {Promise<void>}
+   * @param {number} page
    */
+  changePage(page) {
+    if (this.state.page !== page) {
+      this.setState({ page });
+      this.refreshStories();
+    }
+  }
+
   clearStory() {
     this.setState({ comments: [], story: null });
   }
@@ -115,25 +131,26 @@ class App extends Component {
       this.didLoad('storyList') &&
       <div className="container-fluid">
         <main className="row">
-          <section className="col-3">
-            <h1>Hacker News</h1>
+          <section className="col-sm-12 col-md-5 col-lg-5 col-xl-5">
+            <h1><Button style={{border: 'none', padding: 'none', color: 'black', fontSize: 'inherit', background: 'unset'}} onClick={() => this.changePage(0)}>Hacker News</Button></h1>
             <ListGroup>
               {this.state.storyList.map((story, idx) => (
                   <ListGroupItem key={idx}
                                  style={{padding: 0}}
                                  active={this.state.story === story}>
                     <Button disabled={!this.story && !this.didLoad('story')}
+                            active={this.state.story === story}
                             style={{width: '100%', textAlign: 'left'}}
-                            onClick={async (e) => {
+                            onClick={e => {
                         e.preventDefault();
-                        this.clearStory();
-                        await this.setStory(story);
+                        this.setState({ story });
                       }}>
                       <Badge pill color={story.score > 300 ? 'danger' : story.score > 100 ? 'warning' : 'primary'}>
-                        <span>{story.score}</span> score
+                        <span>{story.score}</span>
                       </Badge>
                       <span>{story.title}</span>
-                      <Badge pill color="info">
+                      <br/>
+                      <Badge pill color="info" className="float-right">
                         <span>{story.descendants}</span> comments
                       </Badge>
                     </Button>
@@ -141,8 +158,28 @@ class App extends Component {
                 )
               )}
             </ListGroup>
+            <Pagination size="sm">
+              <PaginationItem disabled={this.state.page === 0}>
+                <PaginationLink onClick={() => this.changePage(this.state.page - 1)}
+                                previous
+                                href="#" />
+              </PaginationItem>
+              {Array(this.pageCount).fill(0).map((_, idx) => (
+                  <PaginationItem onClick={() => this.changePage(idx)}
+                                  active={this.state.page === idx}
+                                  key={idx}>
+                    <PaginationLink href="#" >{idx + 1}</PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              <PaginationItem disabled={this.state.page - 1 === this.pageCount}>
+                <PaginationLink onClick={() => this.changePage(this.state.page + 1)}
+                                next
+                                href="#" />
+              </PaginationItem>
+            </Pagination>
           </section>
-          <section className="col-9">
+          <section className="col-sm-12 col-md-7 col-lg-7 col-xl-7">
             {this.state.story && (
               <div>
                 <h2><a href={this.state.story.url}>{this.state.story.title}</a></h2>
