@@ -9,7 +9,9 @@ export class Comment extends Component {
     super(props);
     this.state = {
       isVisible: false,
-      collapsed: false,
+      delta: 5,
+      start: 100,
+      collapsed: true,
       text: null,
       comment: null,
     };
@@ -20,7 +22,7 @@ export class Comment extends Component {
     const comment = await loadItem(this.props.id);
     this.setState({
       comment,
-      isVisible: comment.type === 'comment' && comment.text,
+      isVisible: comment && comment.type === 'comment' && comment.text,
     });
   }
 
@@ -33,7 +35,7 @@ export class Comment extends Component {
         this.state.isVisible ?
             (
                 <div className="p-2 rounded m-2" style={{
-                  background: `hsl(0, 0%, ${93 - this.props.depth * 8}%)`,
+                  background: `hsl(0, 0%, ${this.state.start - this.props.depth * this.state.delta}%)`,
                 }}>
                   <p className="font-weight-bold">
                     <Button size="sm"
@@ -53,8 +55,7 @@ export class Comment extends Component {
                               size="sm" className="mb-2"
                               onClick={() => this.toggle()}>
                         {this.state.collapsed ?
-                            `show ${(this.state.comment.kids || []).length ||
-                            0}` :
+                            `show ${(this.state.comment.kids || []).length || 0} replies` :
                             'hide'}
                       </Button>
                   )

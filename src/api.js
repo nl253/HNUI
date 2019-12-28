@@ -6,12 +6,16 @@
  * @typedef {{id: string, delay: number, created: number, karma: number, about: string, submitted: number[]}} User
  */
 
+const LIST_LEN = 200;
+
 /**
- * @param {number} [take]
+ * @param {number} take
+ * @param {number} page
+ * @param {number} pageSize
  * @param {'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
  * @return {Promise<string[]>}
  */
-const loadList = async (take, what = 'topstories') => {
+const loadList = async (take, page, pageSize, what ) => {
   let result = null;
   try {
     const res = await fetch(`${process.env.REACT_APP_HN_API_ROOT}/${what}.json`,
@@ -25,7 +29,7 @@ const loadList = async (take, what = 'topstories') => {
       throw new Error(JSON.stringify(res.body));
     }
     /** @type {number[]} */
-    result = (await res.json()).slice(0, take);
+    result = (await res.json()).slice(0, take).slice(page * pageSize, (page + 1) * pageSize);
   } catch (e) {
     console.error(e.message);
   }
@@ -73,28 +77,25 @@ const load = async (what , id) => {
 
 /**
  * @param {'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
- * @param {number} [take]
+ * @param {number} take
+ * @param {number} page
+ * @param {number} pageSize
  * @return {Promise<Item[]>}
  */
-const loadStories = async (what = 'topstories', take = 80) => {
-  const ids = await loadList(take, what);
+const loadStories = async (what , take, page , pageSize ) => {
+  const ids = await loadList(take, page, pageSize, what);
   const reqs = ids.map(id => loadItem(id));
   const stories = await Promise.all(reqs);
-  return stories.filter(({ type }) => type === 'story');
+  return stories
+    .filter(Boolean)
+    .filter(({ type }) => type === 'story')
+    .sort((a, b) => a.score >= b.score ? -1 : 1);
 };
 
-/**
- * @param {number[]} ids
- * @return {Promise<Item[]>}
- */
-const loadComments = async (ids) => {
-  const items = await Promise.all(ids.map(id => loadItem(id)));
-  return items.filter(({ type }) => type === 'comment');
-};
 
 export {
-  loadComments,
   loadStories,
   loadUser,
+  LIST_LEN,
   loadItem,
 };
