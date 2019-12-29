@@ -1,6 +1,6 @@
 {
-  "short_name": "Blog",
-  "name": "Personal Blog - Norbert Logiewa",
+  "short_name": "HN UI",
+  "name": "Hacker News UI",
   "icons": [],
   "start_url": ".",
   "display": "browser",
