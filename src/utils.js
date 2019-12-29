@@ -1,10 +1,4 @@
 /**
- * @param {string} txt
- * @return {number}
- */
-const getTimeToReadInMin = txt => Math.ceil(txt.length / 650);
-
-/**
  * @param {number} tm
  * @return {string}
  */
@@ -15,5 +9,4 @@ const fmtUNIXTime = tm => {
 
 export {
   fmtUNIXTime,
-  getTimeToReadInMin,
 };
