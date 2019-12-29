@@ -47,10 +47,10 @@ export default class App extends Component {
   initHistoryApi() {
     window.addEventListener('popstate', async ({ state: { page, story } }) => {
       if (Number.isInteger(page) && page >= 0) {
-        await this.changePage(page);
+        await this.changePage(page, false);
       }
       if (story !== undefined && story !== null) {
-        this.setStory(story);
+        this.setStory(story, false);
       }
     });
   }
@@ -111,12 +111,15 @@ export default class App extends Component {
 
   /**
    * @param {number} p
+   * @param {boolean} logHistory
    * @returns {Promise<void>}
    */
-  changePage(p) {
+  changePage(p, logHistory = true) {
     const { storyList, page, story } = this.state;
     if (page !== p) {
-      window.history.pushState({ page: p, story }, `Hacker News page ${p}`, `/${p}/${story && story.id ? story.id : storyList[0].id}`);
+      if (logHistory) {
+        window.history.pushState({ page: p, story }, `Hacker News page ${p}`, `/${p}/${story && story.id ? story.id : storyList[0].id}`);
+      }
       this.setState({ page: p, storyList: [] });
       return this.refreshStories();
     }
@@ -139,11 +142,14 @@ export default class App extends Component {
 
   /**
    * @param {Item} story
+   * @param {boolean} logHistory
    */
-  setStory(story) {
+  setStory(story, logHistory = true) {
     if (this.state.story !== story) {
       const { page } = this.state;
-      window.history.pushState({ story, page }, `Hacker News story "${story.title}"`, `/${page || 0}/${story.id}`);
+      if (logHistory) {
+        window.history.pushState({ story, page }, `Hacker News story "${story.title}"`, `/${page || 0}/${story.id}`);
+      }
       this.setState({ story });
     }
   }
