@@ -18,14 +18,20 @@ const Paginator = ({ isDisplayed, changePage, page, pageCount }) => (
     <Pagination size="sm">
       <PaginationItem disabled={page === 0}>
         <PaginationLink
-          onClick={() => changePage(page - 1)}
+          onClick={(e) => {
+            e.preventDefault();
+            changePage(page - 1);
+          }}
           previous
           href="#"
         />
       </PaginationItem>
       {Array(pageCount).fill(0).map((_, idx) => (
         <PaginationItem
-          onClick={() => changePage(idx)}
+          onClick={(e) => {
+            e.preventDefault();
+            changePage(idx);
+          }}
           active={page === idx}
           key={idx}
         >
@@ -34,7 +40,10 @@ const Paginator = ({ isDisplayed, changePage, page, pageCount }) => (
       ),)}
       <PaginationItem disabled={page - 1 === pageCount}>
         <PaginationLink
-          onClick={() => changePage(page + 1)}
+          onClick={(e) => {
+            e.preventDefault();
+            changePage(page + 1);
+          }}
           next
           href="#"
         />
