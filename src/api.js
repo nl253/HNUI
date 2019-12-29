@@ -11,9 +11,9 @@
  * @param {number} page
  * @param {number} pageSize
  * @param {'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
- * @return {Promise<string[]>}
+ * @returns {Promise<string[]>}
  */
-const loadList = async (take, page, pageSize, what ) => {
+const loadList = async (take, page, pageSize, what) => {
   try {
     const res = await fetch(`${process.env.REACT_APP_HN_API_ROOT}/${what}.json`,
       {
@@ -25,6 +25,7 @@ const loadList = async (take, page, pageSize, what ) => {
     if (!res.ok) {
       throw new Error(JSON.stringify(res.body));
     }
+
     /** @type {number[]} */
     return (await res.json())
       .slice(0, take)
@@ -37,22 +38,22 @@ const loadList = async (take, page, pageSize, what ) => {
 
 /**
  * @param {string|number} id
- * @return {Promise<Item>}
+ * @returns {Promise<Item>}
  */
-const loadUser = id => load('user', id);
+const loadUser = (id) => load('user', id);
 
 /**
  * @param {string|number} id
- * @return {Promise<Item>}
+ * @returns {Promise<Item>}
  */
-const loadItem = async (id) => load('item', id);
+const loadItem = (id) => load('item', id);
 
 /**
  * @param {'item'|'user'|'topstories'} what
  * @param {string|number} id
- * @return {Promise<Item>}
+ * @returns {Promise<Item>}
  */
-const load = async (what , id) => {
+const load = async (what, id) => {
   try {
     const res = await fetch(
       `${process.env.REACT_APP_HN_API_ROOT}/${what}/${id}.json`, {
@@ -61,12 +62,14 @@ const load = async (what , id) => {
           Authorization: process.env.REACT_APP_AUTHORIZATION,
           Accept: 'application/json, *',
         },
-      });
+      }
+    );
     if (!res.ok) {
       throw new Error(JSON.stringify(res.body));
     }
+
     /** @type {Item} */
-    return {kids: [], ...(await res.json())};
+    return { kids: [], ...(await res.json()) };
   } catch (e) {
     console.error(e);
   }
@@ -78,14 +81,14 @@ const load = async (what , id) => {
  * @param {number} take
  * @param {number} page
  * @param {number} pageSize
- * @return {Promise<Item[]>}
+ * @returns {Promise<Item[]>}
  */
-const loadStories = async (what , take, page , pageSize ) => {
+const loadStories = async (what, take, page, pageSize) => {
   const ids = await loadList(take, page, pageSize, what);
-  const reqs = ids.map(id => loadItem(id));
+  const reqs = ids.map((id) => loadItem(id));
   return (await Promise.all(reqs))
     .filter(Boolean)
-    .filter(({type}) => type === 'story')
+    .filter(({ type }) => type === 'story')
     .sort((a, b) => a.score >= b.score ? -1 : 1);
 };
 

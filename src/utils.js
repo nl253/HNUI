@@ -1,12 +1,13 @@
 /**
  * @param {number} tm
- * @return {string}
+ * @returns {string}
  */
-const fmtUNIXTime = tm => {
+const fmtUNIXTime = (tm) => {
   const date = new Date(tm * 1000);
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 };
 
 export {
+  // eslint-disable-next-line import/prefer-default-export
   fmtUNIXTime,
 };

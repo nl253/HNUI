@@ -1,16 +1,18 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import * as serviceWorker from './serviceWorker';
 
-import {author} from '../package.json';
+import { author } from '../package.json';
+import { loadStories, loadUser } from './api';
 
 import './index.scss';
-import {loadStories, loadUser} from './api';
-import {User} from './user';
-import {Paginator} from './paginator';
-import {Stories} from './stories';
-import {Title} from './title';
-import {Story} from './story';
+
+import Paginator from './paginator';
+
+import * as serviceWorker from './serviceWorker';
+import Stories from './stories';
+import Story from './story';
+import Title from './title';
+import User from './user';
 
 class App extends Component {
   constructor(props) {
@@ -24,7 +26,6 @@ class App extends Component {
       pageSize: 15,
       take: 15 * 6,
       storyList: [],
-      comments: [],
       loading: [],
     };
     this.setStory = this.setStory.bind(this);
@@ -36,13 +37,9 @@ class App extends Component {
 
   async refreshStories() {
     this.beginLoading('storyList');
-    this.setState( {
-      storyList: await loadStories(
-        'topstories',
-        this.state.take,
-        this.state.page,
-        this.state.pageSize,
-      ),
+    const { take, page, pageSize } = this.state;
+    this.setState({
+      storyList: await loadStories('topstories', take, page, pageSize),
     });
     this.endLoading('storyList');
   }
@@ -51,14 +48,14 @@ class App extends Component {
    * @param {string} what
    */
   beginLoading(what) {
-    this.setState({loading: [...this.state.loading, what]});
+    this.setState(({ loading }) => ({ loading: [...loading, what] }));
   }
 
   /**
    * @param {string} what
    */
   endLoading(what) {
-    this.setState(({loading}) => {
+    this.setState(({ loading }) => {
       for (let i = 0; i < loading.length; i++) {
         if (loading[i] === what) {
           return {
@@ -66,23 +63,26 @@ class App extends Component {
           };
         }
       }
+      return { loading };
     });
   }
 
   /**
    * @param {string} item
-   * @return {boolean}
+   * @returns {boolean}
    */
   didLoad(...item) {
-    return item.reduce((prev, focus) => prev && this.state.loading.indexOf(focus) < 0, true);
+    const { loading } = this.state;
+    return item.reduce((prev, focus) => prev && loading.indexOf(focus) < 0, true);
   }
 
 
   /**
-   * @return {number}
+   * @returns {number}
    */
   get pageCount() {
-    return Math.ceil(this.state.take / this.state.pageSize);
+    const { take, pageSize } = this.state;
+    return Math.ceil(take / pageSize);
   }
 
   /**
@@ -90,26 +90,23 @@ class App extends Component {
    */
   changePage(page) {
     if (this.state.page !== page) {
-      this.setState({page, storyList: []});
+      this.setState({ page, storyList: [] });
       this.refreshStories();
     }
   }
 
   /**
    * @param {string} name
-   * @return {Promise<void>}
+   * @returns {Promise<void>}
    */
   async setUser(name) {
     this.beginLoading('user');
-    this.setState({user: await loadUser(name)});
+    this.setState({ user: await loadUser(name) });
     this.endLoading('user');
   }
 
-  /**
-   * @return {Promise<void>}
-   */
   clearUser() {
-    this.setState({user: null});
+    this.setState({ user: null });
   }
 
   setStory(story) {
@@ -120,33 +117,46 @@ class App extends Component {
    * @returns {*}
    */
   render() {
+    const { user, storyList, page, story } = this.state;
     return (
       <div className="container-fluid">
         <main className="row">
           <section className="col-sm-12 col-md-5 col-lg-5 col-xl-5">
             <Title changePage={this.changePage} />
-            <Stories isLoading={this.state.storyList.length === 0 && !this.didLoad('storyList')}
-                     setStory={this.setStory}
-                     story={this.state.story}
-                     storyList={this.state.storyList} />
-            <Paginator page={this.state.page}
-                       isDisplayed={this.state.storyList.length > 0 && this.didLoad('storyList')}
-                       pageCount={this.pageCount}
-                       changePage={this.changePage} />
+            <Stories
+              isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+              setStory={this.setStory}
+              story={story}
+              storyList={storyList}
+            />
+            <Paginator
+              page={page}
+              isDisplayed={storyList.length > 0 && this.didLoad('storyList')}
+              pageCount={this.pageCount}
+              changePage={this.changePage}
+            />
           </section>
           <section className="col-sm-12 col-md-7 col-lg-7 col-xl-7">
-            <Story isLoading={!this.state.user && !this.didLoad('user')}
-                   isDisplayed={!!this.state.story}
-                   setUser={this.setUser}
-                   story={this.state.story} />
+            <Story
+              isLoading={!user && !this.didLoad('user')}
+              isDisplayed={!!story}
+              setUser={this.setUser}
+              story={story}
+            />
           </section>
         </main>
-        <User user={this.state.user}
-              clearUser={this.clearUser}
-              isDisplayed={!!this.state.user} />
+        <User
+          user={user}
+          clearUser={this.clearUser}
+          isDisplayed={!!user}
+        />
         <footer>
           <p className="text-center mx-auto">
-            Copyright &copy; <span>{this.author.name}</span> <span>{this.year}</span>
+            Copyright &copy;
+            {' '}
+            <span>{this.author.name}</span>
+            {' '}
+            <span>{this.year}</span>
           </p>
         </footer>
       </div>
@@ -154,6 +164,5 @@ class App extends Component {
   }
 }
 
-ReactDOM.render(<App/>, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));
 serviceWorker.unregister();
-

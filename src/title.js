@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'reactstrap';
+import { Button } from 'reactstrap';
 
 const btnStyles = {
   border: 'none',
@@ -12,12 +12,14 @@ const btnStyles = {
 
 /**
  * @param changePage
- * @return {*}
+ * @returns {*}
  */
-export const Title = ({changePage}) => (
+const Title = ({ changePage }) => (
   <h1>
     <Button onClick={() => changePage(0)} style={btnStyles}>
       Hacker News
     </Button>
   </h1>
 );
+
+export default Title;
