@@ -15,6 +15,7 @@ export default class Comment extends Component {
     const start = 100;
     this.background = `hsl(0, 0%, ${start - depth * deltaColor}%)`;
     this.indent = `${depth * deltaIndent}px`;
+    this._isMounted = false;
     this.state = {
       isDisplayed: false,
       kids: [],
@@ -25,13 +26,11 @@ export default class Comment extends Component {
   }
 
   async init() {
-    const { depth, setUser, id } = this.props;
-    const comment = await loadItem(id);
+    const comment = await loadItem(this.props.id);
     if (this._isMounted === true) {
       this.setState({
         comment,
         isDisplayed: comment && comment.type === 'comment' && comment.text,
-        kids: comment.kids.map((kId) => <Comment setUser={setUser} depth={depth + 1} key={kId} id={kId} />),
       });
     }
   }
@@ -44,7 +43,10 @@ export default class Comment extends Component {
   }
 
   toggle() {
-    this.setState(({ collapsed }) => ({ collapsed: !collapsed }));
+    this.setState(({ collapsed, kids, comment }) => ({
+      collapsed: !collapsed,
+      kids: kids.length === 0 && collapsed ? comment.kids.map((kId) => <Comment setUser={this.props.setUser} depth={this.props.depth + 1} key={kId} id={kId} />) : kids,
+    }));
   }
 
   render() {
@@ -65,6 +67,7 @@ export default class Comment extends Component {
                 <Button
                   color={!collapsed ? 'warning' : 'info'}
                   size="sm"
+                  disabled={!this._isMounted || !this.state.comment}
                   className="mb-2"
                   onClick={() => this.toggle()}
                 >

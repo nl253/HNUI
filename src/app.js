@@ -29,29 +29,31 @@ export default class App extends Component {
 
   async componentDidMount() {
     await this.refreshStories();
+    let page;
+    let story;
     if (window.location.pathname.length > 1) {
       const parts = window.location.pathname.slice(1).split('/');
-      const page = Object.is(NaN, parseInt(parts[0])) ? 0 : parseInt(parts[0]);
-      await this.changePage(page);
-      const story = parts.length > 1 && !Object.is(NaN, parseInt(parts[1])) ? await loadItem(parts[1]) : this.state.storyList[0];
-      this.setStory(story);
-    } else {
-      await this.changePage(0);
-      this.setStory(this.state.storyList[0]);
+      if (!Object.is(NaN, parseInt(parts[0])) && parseInt(parts[0]) >= 0) {
+        page = parseInt(parts[0]);
+      }
+      if (parts.length > 1 && !Object.is(NaN, parseInt(parts[1])) && parseInt(parts[1]) >= 0) {
+        story = await loadItem(parts[1]);
+      }
     }
+    await this.changePage(page || 0);
+    this.setStory(story || this.state.storyList[0]);
   }
 
   initHistoryApi() {
     window.addEventListener('popstate', async ({ state: { page, story } }) => {
-      if (page !== this.state.page && Number.isInteger(page)) {
+      if (Number.isInteger(page) && page >= 0) {
         await this.changePage(page);
       }
-      if (story !== undefined && story !== null && this.state.story !== story) {
+      if (story !== undefined && story !== null) {
         this.setStory(story);
       }
     });
   }
-
   /**
    * @returns {Promise<void>}
    */
@@ -114,7 +116,7 @@ export default class App extends Component {
   changePage(p) {
     const { storyList, page, story } = this.state;
     if (page !== p) {
-      window.history.pushState({ page: p, story }, `Hacker News page ${p}`, `/${p}/${story.id || storyList[0].id}`);
+      window.history.pushState({ page: p, story }, `Hacker News page ${p}`, `/${p}/${story && story.id ? story.id : storyList[0].id}`);
       this.setState({ page: p, storyList: [] });
       return this.refreshStories();
     }
@@ -139,9 +141,11 @@ export default class App extends Component {
    * @param {Item} story
    */
   setStory(story) {
-    const { page } = this.state;
-    window.history.pushState({ story, page }, `Hacker News story "${story.title}"`, `/${page || 0}/${story.id}`);
-    this.setState({ story });
+    if (this.state.story !== story) {
+      const { page } = this.state;
+      window.history.pushState({ story, page }, `Hacker News story "${story.title}"`, `/${page || 0}/${story.id}`);
+      this.setState({ story });
+    }
   }
 
   /**
