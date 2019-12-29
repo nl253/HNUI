@@ -1,12 +1,10 @@
 /**
- * @typedef {{poll: number, parts: number[], url: string, score: number, by: string, descendants: number, kids: number[], time: number, title: string, type: string, id: number}} Item
+ * @typedef {{poll: number, parts: number[], url: string, score: number, by: string, descendants: number, kids: ?Array<number>, time: number, title: string, type: string, id: number, text: string}} Item
  */
 
 /**
- * @typedef {{id: string, delay: number, created: number, karma: number, about: string, submitted: number[]}} User
+ * @typedef {{id: string, delay: number, created: number, karma: number, about: string, submitted: number[]}} UserModel
  */
-
-const LIST_LEN = 200;
 
 /**
  * @param {number} take
@@ -16,7 +14,6 @@ const LIST_LEN = 200;
  * @return {Promise<string[]>}
  */
 const loadList = async (take, page, pageSize, what ) => {
-  let result = null;
   try {
     const res = await fetch(`${process.env.REACT_APP_HN_API_ROOT}/${what}.json`,
       {
@@ -29,11 +26,13 @@ const loadList = async (take, page, pageSize, what ) => {
       throw new Error(JSON.stringify(res.body));
     }
     /** @type {number[]} */
-    result = (await res.json()).slice(0, take).slice(page * pageSize, (page + 1) * pageSize);
+    return (await res.json())
+      .slice(0, take)
+      .slice(page * pageSize, (page + 1) * pageSize);
   } catch (e) {
     console.error(e.message);
   }
-  return result;
+  return null;
 };
 
 /**
@@ -54,7 +53,6 @@ const loadItem = async (id) => load('item', id);
  * @return {Promise<Item>}
  */
 const load = async (what , id) => {
-  let result = null;
   try {
     const res = await fetch(
       `${process.env.REACT_APP_HN_API_ROOT}/${what}/${id}.json`, {
@@ -68,11 +66,11 @@ const load = async (what , id) => {
       throw new Error(JSON.stringify(res.body));
     }
     /** @type {Item} */
-    result = await res.json();
+    return {kids: [], ...(await res.json())};
   } catch (e) {
     console.error(e);
   }
-  return result;
+  return null;
 };
 
 /**
@@ -85,17 +83,14 @@ const load = async (what , id) => {
 const loadStories = async (what , take, page , pageSize ) => {
   const ids = await loadList(take, page, pageSize, what);
   const reqs = ids.map(id => loadItem(id));
-  const stories = await Promise.all(reqs);
-  return stories
+  return (await Promise.all(reqs))
     .filter(Boolean)
-    .filter(({ type }) => type === 'story')
+    .filter(({type}) => type === 'story')
     .sort((a, b) => a.score >= b.score ? -1 : 1);
 };
-
 
 export {
   loadStories,
   loadUser,
-  LIST_LEN,
   loadItem,
 };

@@ -4,15 +4,21 @@ import {Button} from 'reactstrap';
 import {lexer, parser} from 'marked';
 import {fmtUNIXTime} from './utils';
 
+const config = {
+  deltaColor: 5,
+  deltaIndent: 2,
+  start: 100,
+};
+
 export class Comment extends Component {
   constructor(props) {
     super(props);
+    this.background = `hsl(0, 0%, ${config.start - this.props.depth * config.deltaColor}%)`;
+    this.indent = `${this.props.depth * config.deltaIndent}px`;
     this.state = {
-      isVisible: false,
-      delta: 5,
-      start: 100,
+      isDisplayed: false,
+      kids: [],
       collapsed: true,
-      text: null,
       comment: null,
     };
     this.init();
@@ -22,7 +28,8 @@ export class Comment extends Component {
     const comment = await loadItem(this.props.id);
     this.setState({
       comment,
-      isVisible: comment && comment.type === 'comment' && comment.text,
+      isDisplayed: comment && comment.type === 'comment' && comment.text,
+      kids: comment.kids.map((id, cIdx) => <Comment setUser={this.props.setUser} depth={this.props.depth + 1} key={cIdx} id={id}/>),
     });
   }
 
@@ -32,46 +39,31 @@ export class Comment extends Component {
 
   render() {
     return (
-        this.state.isVisible ?
-            (
-                <div className="p-2 rounded m-2" style={{
-                  background: `hsl(0, 0%, ${this.state.start - this.props.depth * this.state.delta}%)`,
-                }}>
-                  <p className="font-weight-bold">
-                    <Button size="sm"
-                            onClick={() => this.props.setUser(
-                                this.state.comment.by)}>
-                      {this.state.comment.by}
-                    </Button>
-                  </p>
-                  <p className="font-italic">{fmtUNIXTime(
-                      this.state.comment.time)}</p>
-                  <p dangerouslySetInnerHTML={{
-                    __html: parser(lexer(this.state.comment.text || '')),
-                  }}/>
-                  {(this.state.comment.kids || []).length > 0 &&
-                  (
-                      <Button color={!this.state.collapsed ? 'warning' : 'info'}
-                              size="sm" className="mb-2"
-                              onClick={() => this.toggle()}>
-                        {this.state.collapsed ?
-                            `show ${(this.state.comment.kids || []).length || 0} replies` :
-                            'hide'}
-                      </Button>
-                  )
-                  }
-                  <ol style={{
-                    display: this.state.collapsed ? 'none' : 'block',
-                    paddingLeft: `${this.props.depth * 7}px`,
-                  }}>
-                    {(this.state.comment.kids || []).map(
-                        (id, cIdx) => <Comment setUser={this.props.setUser}
-                                               depth={this.props.depth + 1}
-                                               key={cIdx} id={id}/>)}
-                  </ol>
-                </div>
-            )
-            : null
+      this.state.isDisplayed ?
+        (
+          <div className="p-2 rounded m-2" style={{background: this.background}}>
+            <p className="font-weight-bold">
+              <Button size="sm" className="font-weight-bold" style={{paddingLeft: 0, borderLeft: 0}} onClick={() => this.props.setUser(this.state.comment.by)}>
+                {this.state.comment.by}
+              </Button>
+            </p>
+            <p className="font-italic">{fmtUNIXTime(this.state.comment.time)}</p>
+            <p dangerouslySetInnerHTML={{__html: parser(lexer(this.state.comment.text || ''))}}/>
+            {this.state.comment.kids.length > 0 && (
+              <div>
+                <Button color={!this.state.collapsed ? 'warning' : 'info'}
+                        size="sm" className="mb-2"
+                        onClick={() => this.toggle()}>
+                  {this.state.collapsed
+                    ? `show ${this.state.comment.kids.length} replies`
+                    : 'hide'}
+                </Button>
+                <ol style={{display: this.state.collapsed ? 'none' : 'block', paddingLeft: this.indent}}>{this.state.kids}</ol>
+              </div>
+            )}
+          </div>
+        )
+        : null
     );
   }
 }
