@@ -71,7 +71,9 @@ export default class Comment extends Component {
                     ? `⮟ ${comment.kids.length} replies`
                     : '⮝ close'}
                 </Button>
-                <ol style={{ display: collapsed ? 'none' : 'block', paddingLeft: this.indent }}>{kids}</ol>
+                <ol style={{ display: collapsed ? 'none' : 'block', paddingLeft: this.indent }}>
+                  { collapsed ? [] : kids}
+                </ol>
               </div>
             )}
           </div>

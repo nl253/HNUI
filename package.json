@@ -50,6 +50,7 @@
     ]
   },
   "dependencies": {
+    "localforage": "^1.7.3",
     "marked": "^0.8.0",
     "react-scripts": "3.3.0",
     "node-sass": "^4.11.0",

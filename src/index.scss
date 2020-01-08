@@ -110,6 +110,10 @@ code {
     background-color: $gray-900 !important;
   }
 
+  &.active {
+    background-color: lighten($gray-900, 10) !important;
+  }
+
   &.list-group-item-secondary {
     background-color: $secondary;
   }

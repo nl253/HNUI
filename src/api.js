@@ -1,3 +1,5 @@
+import * as CACHE from 'localforage';
+
 /**
  * @typedef {{
  *  poll: number,
@@ -25,33 +27,47 @@
  */
 
 /**
- * @param {number} take
- * @param {number} page
- * @param {number} pageSize
- * @param {
- *  'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
+ * @param {'topstories'
+ *        |'updates'
+ *        |'askstories'
+ *        |'showstories'
+ *        |'jobstories'
+ *        |'newstories'
+ *        |'beststories'
+ *        } what
  * @returns {Promise<string[]>}
  */
-const loadList = async (take, page, pageSize, what) => {
+const loadList = async (what) => {
   try {
-    const res = await fetch(`${process.env.REACT_APP_HN_API_ROOT}/${what}.json`, {
-      mode: 'cors',
-      headers: {
-        Accept: 'application/json, *',
-      },
-    });
-    if (!res.ok) {
-      throw new Error(JSON.stringify(res.body));
+    const maybeCached = await CACHE.getItem(what);
+    if (maybeCached === null) {
+      throw new Error(`could not get cached ${what}`);
     }
-
-    /** @type {number[]} */
-    return (await res.json())
-      .slice(0, take)
-      .slice(page * pageSize, (page + 1) * pageSize);
+    return maybeCached;
   } catch (e) {
-    console.error(e.message);
+    console.debug(e.message);
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_HN_API_ROOT}/${what}.json`, {
+          mode: 'cors',
+          headers: {
+            Accept: 'application/json, *',
+          },
+        },
+      );
+      if (!res.ok) {
+        throw new Error(JSON.stringify(res.body));
+      }
+
+      /** @type {number[]} */
+      const result = await res.json();
+      await CACHE.setItem(what, result);
+      return result;
+    } catch (e2) {
+      console.error(e2.message);
+    }
+    return null;
   }
-  return null;
 };
 
 /**
@@ -67,48 +83,62 @@ const loadUser = (id) => load('user', id);
 const loadItem = (id) => load('item', id);
 
 /**
- * @param {'item'|'user'|'topstories'} what
+ * @param {'item'|'user'} what
  * @param {string|number} id
  * @returns {Promise<Item>}
  */
 const load = async (what, id) => {
+  const cacheKey = `${what}::${id}`;
   try {
-    const res = await fetch(
-      `${process.env.REACT_APP_HN_API_ROOT}/${what}/${id}.json`, {
-        mode: 'cors',
-        headers: {
-          Authorization: process.env.REACT_APP_AUTHORIZATION,
-          Accept: 'application/json, *',
-        },
-      },
-    );
-    if (!res.ok) {
-      throw new Error(JSON.stringify(res.body));
+    const maybeCached = await CACHE.getItem(cacheKey);
+    if (maybeCached !== null) {
+      return maybeCached;
     }
-
-    /** @type {Item} */
-    return { kids: [], ...(await res.json()) };
+    throw new Error(`could not get cached ${what} with id = ${id}`);
   } catch (e) {
-    console.error(e);
+    console.debug(e.message);
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_HN_API_ROOT}/${what}/${id}.json`, {
+          mode: 'cors',
+          headers: {
+            Authorization: process.env.REACT_APP_AUTHORIZATION,
+            Accept: 'application/json, *',
+          },
+        },
+      );
+      if (!res.ok) {
+        throw new Error(JSON.stringify(res.body));
+      }
+
+      /** @type {Item} */
+      const result = { kids: [], ...(await res.json()) };
+      await CACHE.setItem(cacheKey, result);
+      return result;
+    } catch (e2) {
+      console.error(e2);
+    }
+    return null;
   }
-  return null;
 };
 
 /**
- * @param {
- *  'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
- * @param {number} take
- * @param {number} page
- * @param {number} pageSize
+ * @param {'topstories'
+ *        |'updates'
+ *        |'askstories'
+ *        |'showstories'
+ *        |'jobstories'
+ *        |'newstories'
+ *        |'beststories'
+ *        } what
  * @returns {Promise<Item[]>}
  */
-const loadStories = async (what, take, page, pageSize) => {
-  const ids = await loadList(take, page, pageSize, what);
+const loadStories = async (what) => {
+  const ids = await loadList(what);
   const reqs = ids.map((id) => loadItem(id));
   return (await Promise.all(reqs))
     .filter(Boolean)
-    .filter(({ type }) => type === 'story')
-    .sort((a, b) => (a.score >= b.score ? -1 : 1));
+    .filter(({ type }) => type === 'story');
 };
 
 export {

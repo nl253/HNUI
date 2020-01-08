@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import { loadStories, loadUser } from './api';
+import { loadItem, loadStories, loadUser } from './api';
 import Paginator from './paginator';
 import Stories from './stories';
 import Story from './story';
@@ -23,15 +23,50 @@ export default class App extends Component {
     this.setUser = this.setUser.bind(this);
     this.clearUser = this.clearUser.bind(this);
     this.changePage = this.changePage.bind(this);
-    setTimeout(() => this.refreshStories(), 100);
+    this.refreshStories = this.refreshStories.bind(this);
+    this.initHistoryApi();
   }
 
+  initHistoryApi() {
+    window.onpopstate = (o) => {
+      if (o.state !== null) {
+        const { story, page } = o.state;
+        if (story !== null) {
+          this.setStory(story, false);
+        }
+        this.changePage(page, false);
+      }
+    };
+  }
+
+  async componentDidMount() {
+    await this.refreshStories();
+    const parts = window.location.pathname.slice(1).split('/');
+    const storyId = parseInt(parts[1]);
+    const { state } = this;
+    const { story, page, storyList } = state;
+    if (parts.length === 2 && !isNaN(storyId)) {
+      if (story === null || story.id !== storyId) {
+        await this.setStory(await loadItem(storyId));
+      }
+    }
+    const p = parseInt(parts[0]);
+    if (parts.length >= 1 && !isNaN(p) && page !== p) {
+      this.changePage(p);
+    }
+    if (parts.length === 0) {
+      this.setStory(storyList[0]);
+    }
+  }
+
+  /**
+   * @return {Promise<void>}
+   */
   async refreshStories() {
     this.beginLoading('storyList');
     document.body.classList.add('loading');
-    const { take, page, pageSize } = this.state;
     this.setState({
-      storyList: await loadStories('topstories', take, page, pageSize),
+      storyList: await loadStories('topstories'),
     });
     this.endLoading('storyList');
     document.body.classList.remove('loading');
@@ -80,10 +115,32 @@ export default class App extends Component {
 
   /**
    * @param {number} page
+   * @param {boolean} [doSaveHistory]
+   * @return {Promise<void>}
    */
-  changePage(page) {
+  async changePage(page, doSaveHistory = true) {
+    const { state } = this;
+    const { story, storyList } = state;
+    if (doSaveHistory) {
+      if (story === null) {
+        const t = `Hacker News p. ${page}`;
+        const url = `/${page}`;
+        const data = { story, page };
+        window.history.pushState(data, t, url);
+      } else {
+        const { id, title } = story;
+        const t = `Hacker News "${title}" p. ${page}`;
+        const data = { story, page };
+        const url = `/${page}/${id}`;
+        window.history.pushState(data, t, url);
+      }
+    }
+    if (state.page === page && storyList.length > 0) {
+      return;
+    }
     this.setState({ page });
-    this.refreshStories();
+    // eslint-disable-next-line no-return-await
+    // return await this.refreshStories();
   }
 
   /**
@@ -104,7 +161,23 @@ export default class App extends Component {
     this.setStory(null);
   }
 
-  setStory(story) {
+  /**
+   * @param {Item|null} story
+   * @param {boolean} [doSaveHistory]
+   */
+  setStory(story, doSaveHistory = true) {
+    if (doSaveHistory) {
+      const { state } = this;
+      const { page } = state;
+      const { title, id } = story;
+      const data = { story, page };
+      const t = `Hacker News "${title}" p. ${page}`;
+      const url = `/${page}/${id}`;
+      window.history.pushState(data, t, url);
+    }
+    if (this.state.story !== null && this.state.story.id === story.id) {
+      return;
+    }
     this.setState({ story });
   }
 
@@ -113,62 +186,81 @@ export default class App extends Component {
    */
   render() {
     const {
-      user, storyList, page, story,
+      user,
+      storyList,
+      pageSize,
+      page,
+      take,
+      story,
     } = this.state;
     return (
       <div className="container-fluid">
         <main className="row">
           <section className="col-sm-12 col-md-5 col-lg-5 col-xl-5">
-            <Title changePage={this.changePage} />
+            <Title changePage={this.refreshStories} />
             <div className="d-none d-xl-block d-lg-block d-md-block d-sm-none">
               <Stories
+                page={page}
+                take={take}
+                pageSize={pageSize}
                 isLoading={storyList.length === 0 && !this.didLoad('storyList')}
                 setStory={this.setStory}
                 story={story}
                 storyList={storyList}
               />
             </div>
-            <div hidden={story !== null} className="d-block d-xl-none d-lg-none d-md-none d-sm-block">
-              {story === null && (
-                <Stories
-                  isLoading={storyList.length === 0 && !this.didLoad('storyList')}
-                  setStory={this.setStory}
-                  story={story}
-                  storyList={storyList}
-                />
-              )}
-            </div>
-            <div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none" hidden={storyList.length === 0}>
-              <Paginator
-                page={page}
-                isDisabled={!this.didLoad('storyList')}
-                pageCount={this.pageCount}
-                changePage={this.changePage}
-              />
-            </div>
-            <div className="mt-3 d-block d-xl-none d-lg-none d-md-none d-sm-block" hidden={storyList.length === 0}>
-              {story === null && (
+            {!!story && (
+              <div className="d-block d-xl-none d-lg-none d-md-none d-sm-block">
+                {story === null && (
+                  <Stories
+                    page={page}
+                    pageSize={pageSize}
+                    take={take}
+                    isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+                    setStory={this.setStory}
+                    story={story}
+                    storyList={storyList}
+                  />
+                )}
+              </div>
+            )}
+            {storyList.length > 0 && (
+              <div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none">
                 <Paginator
                   page={page}
                   isDisabled={!this.didLoad('storyList')}
                   pageCount={this.pageCount}
                   changePage={this.changePage}
                 />
-              )}
-            </div>
+              </div>
+            )}
+            {storyList.length > 0 && (
+              <div className="mt-3 d-block d-xl-none d-lg-none d-md-none d-sm-block">
+                {story === null && (
+                  <Paginator
+                    page={page}
+                    isDisabled={!this.didLoad('storyList')}
+                    pageCount={this.pageCount}
+                    changePage={this.changePage}
+                  />
+                )}
+              </div>
+            )}
           </section>
           <section className="col-sm-12 col-md-7 col-lg-7 col-xl-7">
-            <div hidden={story === null}>
-              <Button
-                className="d-block d-xl-none d-lg-none d-md-none mx-auto"
-                style={{ width: '40%' }}
-                size="lg"
-                onClick={() => this.clearStory()}
-                color="dark"
-              >
-                Back
-              </Button>
-            </div>
+            {story !== null && (
+              <div>
+                <Button
+                  className="d-block d-xl-none d-lg-none d-md-none mx-auto"
+                  style={{ width: '40%' }}
+                  size="lg"
+                  onClick={() => this.clearStory()}
+                  color="dark"
+                >
+                  Back
+                </Button>
+              </div>
+            )}
             <Story
               isLoading={!user && !this.didLoad('user')}
               isDisplayed={!!story}
