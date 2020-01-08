@@ -26,6 +26,8 @@ import * as CACHE from 'localforage';
  *  submitted: number[]}} UserModel
  */
 
+const clearCache = () => CACHE.clear();
+
 /**
  * @param {'topstories'
  *        |'updates'
@@ -133,16 +135,21 @@ const load = async (what, id) => {
  *        } what
  * @returns {Promise<Item[]>}
  */
-const loadStories = async (what) => {
-  const ids = await loadList(what);
+async function* loadStories(what) {
+  const ids = (await loadList(what)).slice(0, 6 * 20);
   const reqs = ids.map((id) => loadItem(id));
-  return (await Promise.all(reqs))
-    .filter(Boolean)
-    .filter(({ type }) => type === 'story');
-};
+  for (const p of reqs) {
+    // eslint-disable-next-line no-await-in-loop
+    const result = await p;
+    if (result && result.type === 'story') {
+      yield result;
+    }
+  }
+}
 
 export {
   loadStories,
   loadUser,
   loadItem,
+  clearCache,
 };

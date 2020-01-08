@@ -53,9 +53,9 @@ const Paginator = ({
           <PaginationLink className={isDisabled ? 'disabled' : ''} href="#">{idx + 1}</PaginationLink>
         </PaginationItem>
       ))}
-      <PaginationItem className={isDisabled ? 'disabled' : ''}>
+      <PaginationItem className={isDisabled || page === pageCount - 1 ? 'disabled' : ''}>
         <PaginationLink
-          className={isDisabled ? 'disabled' : ''}
+          className={isDisabled || page === pageCount - 1 ? 'disabled' : ''}
           onClick={() => {
             if (!isDisabled) {
               changePage(page + 1);

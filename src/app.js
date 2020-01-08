@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import { loadItem, loadStories, loadUser } from './api';
+import {
+  clearCache,
+  loadItem,
+  loadStories,
+  loadUser,
+} from './api';
 import Paginator from './paginator';
 import Stories from './stories';
 import Story from './story';
@@ -65,9 +70,12 @@ export default class App extends Component {
   async refreshStories() {
     this.beginLoading('storyList');
     document.body.classList.add('loading');
-    this.setState({
-      storyList: await loadStories('topstories'),
-    });
+    this.setState({ storyList: [] });
+    for await (const story of loadStories('topstories')) {
+      this.setState((state) => ({
+        storyList: state.storyList.concat([story]),
+      }));
+    }
     this.endLoading('storyList');
     document.body.classList.remove('loading');
   }
@@ -197,7 +205,11 @@ export default class App extends Component {
       <div className="container-fluid">
         <main className="row">
           <section className="col-sm-12 col-md-5 col-lg-5 col-xl-5">
-            <Title changePage={this.refreshStories} />
+            <Title refresh={async () => {
+              await clearCache();
+              this.refreshStories();
+            }}
+            />
             <div className="d-none d-xl-block d-lg-block d-md-block d-sm-none">
               <Stories
                 page={page}

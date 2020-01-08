@@ -2,12 +2,12 @@ import React from 'react';
 import { Button } from 'reactstrap';
 
 /**
- * @param changePage
+ * @param refresh
  * @returns {*}
  */
-const Title = ({ changePage }) => (
+const Title = ({ refresh }) => (
   <h1 className="h1">
-    <Button style={{ background: 'transparent' }} onClick={() => changePage(0)}>
+    <Button style={{ background: 'transparent' }} onClick={() => refresh(0)}>
       Hacker News
     </Button>
   </h1>
