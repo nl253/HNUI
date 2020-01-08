@@ -28,90 +28,161 @@
         <article>
             <pre class="prettyprint source linenums"><code>import React from 'react';
 import {
-  Badge,
-  Button,
-  ListGroup,
-  ListGroupItem,
-  Spinner,
+  Badge, Button, ListGroup, ListGroupItem, Spinner,
 } from 'reactstrap';
 
-/**
- * @param {number} score
- * @returns {'danger'|'warning'|'primary'}
- */
-const getBadgeColor = (score) => {
-  if (score > 300) {
-    return 'danger';
+export default class Stories extends React.Component {
+  constructor(props) {
+    super(props);
+    const {
+      storyList, pageSize, take, page,
+    } = props;
+    this.state = {
+      storyList: storyList.slice(0, take).slice(page * pageSize, (page + 1) * pageSize),
+    };
   }
-  if (score > 100) {
-    return 'warning';
+
+  componentDidMount() {
+    this.reorder('freshness');
   }
-  return 'primary';
-};
 
-const spinnerStyles = {
-  width: '3rem',
-  height: '3rem',
-  marginLeft: 'auto',
-  marginRight: 'auto',
-  display: 'block',
-};
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { take, page, pageSize } = this.props;
+    // eslint-disable-next-line react/no-direct-mutation-state
+    this.state.storyList = this
+      .props
+      .storyList
+      .slice(0, take)
+      .slice(page * pageSize, (page + 1) * pageSize);
+  }
 
-/**
- * @param {boolean} isLoading
- * @param setStory
- * @param {Item} story
- * @param {Item[]} storyList
- * @returns {*}
- */
-const Stories = ({
-  isLoading,
-  setStory,
-  story,
-  storyList,
-}) => (
-  isLoading
-    ? (
-      &lt;Spinner
-        className="mt-5"
-        style={spinnerStyles}
-      />
-    )
-    : (
-      &lt;ListGroup>
-        {storyList.map((s) => (
-          &lt;ListGroupItem
-            key={s.id}
-            style={{ padding: 0, background: 'transparent' }}
-            active={story.id === s.id}
-          >
-            &lt;Button
-              disabled={isLoading}
-              active={story.id === s.id}
-              style={{ width: '100%', textAlign: 'left', background: 'transparent' }}
-              onClick={(e) => {
-                e.preventDefault();
-                setStory(s);
+  /**
+   * @param {'freshness'
+   *        |'votes'
+   *        |'comments'
+   *        |'freshnessReverse'
+   *        |'votesReverse'
+   *        |'commentsRevers'} sortBy
+   */
+  reorder(sortBy) {
+    const {
+      storyList, take, page, pageSize,
+    } = this.props;
+    if (sortBy === 'freshness') {
+      storyList.sort((x1, x2) => (x2.time >= x1.time ? 1 : -1));
+    } else if (sortBy === 'votes') {
+      storyList.sort((x1, x2) => (x2.score >= x1.score ? 1 : -1));
+    } else if (sortBy === 'comments') {
+      storyList.sort((x1, x2) => (x2.descendants >= x1.descendants ? 1 : -1));
+    }
+    this.setState({
+      storyList: storyList.slice(0, take).slice(page * pageSize, (page + 1) * pageSize),
+    });
+  }
+
+  /**
+   * @param {number} score
+   * @returns {'danger'|'warning'|'primary'}
+   */
+  static getBadgeColor(score) {
+    if (score > 300) {
+      return 'danger';
+    }
+    if (score > 100) {
+      return 'warning';
+    }
+    return 'primary';
+  }
+
+  render() {
+    const { isLoading, setStory, story } = this.props;
+    return (
+      isLoading
+        ? (
+          &lt;Spinner
+            className="mt-5"
+            style={{
+              width: '3rem',
+              height: '3rem',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              display: 'block',
+            }}
+          />
+        )
+        : (
+          &lt;div>
+            &lt;div
+              style={{
+                marginTop: '40px',
+                marginBottom: '20px',
+                flexWrap: 'wrap',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                alignItems: 'center',
               }}
             >
-              &lt;Badge pill color={getBadgeColor(s.score)}>
-                &lt;span>{s.score}&lt;/span>
-              &lt;/Badge>
-              &lt;span>{s.title}&lt;/span>
-              &lt;br />
-              &lt;Badge pill color="info" className="float-right">
-                &lt;span>{s.descendants}&lt;/span>
-                {' '}
-                comments
-              &lt;/Badge>
-            &lt;/Button>
-          &lt;/ListGroupItem>
-        ))}
-      &lt;/ListGroup>
-    )
-);
+              &lt;Button
+                color="info"
+                onClick={() => this.reorder('freshness')}
+              >
+                ⮟ Freshness
+              &lt;/Button>
+              &lt;Button
+                color="danger"
+                onClick={() => this.reorder('votes')}
+              >
+                ⮟ #Upvotes
+              &lt;/Button>
+              &lt;Button
+                color="warning"
+                onClick={() => this.reorder('comments')}
+              >
+                ⮟ #Comments
+              &lt;/Button>
+            &lt;/div>
 
-export default Stories;
+            &lt;ListGroup>
+              {this.state.storyList.map((s) => (
+                &lt;ListGroupItem
+                  key={s.id}
+                  style={{ padding: 0, background: 'transparent' }}
+                  active={story !== null &amp;&amp; story.id === s.id}
+                >
+                  &lt;Button
+                    disabled={isLoading}
+                    active={story !== null &amp;&amp; story.id === s.id}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      background: 'transparent',
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setStory(s);
+                    }}
+                  >
+                    &lt;Badge pill color={Stories.getBadgeColor(s.score)}>
+                      &lt;span>{s.score}&lt;/span>
+                    &lt;/Badge>
+                    &lt;span>{s.title}&lt;/span>
+                    &lt;br />
+                    &lt;Badge pill color="info" className="float-right">
+                      &lt;span>{s.descendants}&lt;/span>
+                      {' '}
+                      comments
+                    &lt;/Badge>
+                  &lt;/Button>
+                &lt;/ListGroupItem>
+              ))}
+            &lt;/ListGroup>
+
+          &lt;/div>
+        )
+    );
+  }
+}
 </code></pre>
         </article>
     </section>
@@ -122,13 +193,13 @@ export default Stories;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Story.html">Story</a></li></ul><h3>Global</h3><ul><li><a href="global.html#beginLoading">beginLoading</a></li><li><a href="global.html#changePage">changePage</a></li><li><a href="global.html#checkValidServiceWorker">checkValidServiceWorker</a></li><li><a href="global.html#didLoad">didLoad</a></li><li><a href="global.html#endLoading">endLoading</a></li><li><a href="global.html#fmtUNIXTime">fmtUNIXTime</a></li><li><a href="global.html#getBadgeColor">getBadgeColor</a></li><li><a href="global.html#load">load</a></li><li><a href="global.html#loadItem">loadItem</a></li><li><a href="global.html#loadList">loadList</a></li><li><a href="global.html#loadStories">loadStories</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#pageCount">pageCount</a></li><li><a href="global.html#Paginator">Paginator</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#registerValidSW">registerValidSW</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#setStory">setStory</a></li><li><a href="global.html#setUser">setUser</a></li><li><a href="global.html#Stories">Stories</a></li><li><a href="global.html#Title">Title</a></li><li><a href="global.html#User">User</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Story.html">Story</a></li></ul><h3>Global</h3><ul><li><a href="global.html#beginLoading">beginLoading</a></li><li><a href="global.html#changePage">changePage</a></li><li><a href="global.html#checkValidServiceWorker">checkValidServiceWorker</a></li><li><a href="global.html#didLoad">didLoad</a></li><li><a href="global.html#endLoading">endLoading</a></li><li><a href="global.html#fmtUNIXTime">fmtUNIXTime</a></li><li><a href="global.html#getBadgeColor">getBadgeColor</a></li><li><a href="global.html#load">load</a></li><li><a href="global.html#loadItem">loadItem</a></li><li><a href="global.html#loadList">loadList</a></li><li><a href="global.html#loadStories">loadStories</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#pageCount">pageCount</a></li><li><a href="global.html#Paginator">Paginator</a></li><li><a href="global.html#refreshStories">refreshStories</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#registerValidSW">registerValidSW</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reorder">reorder</a></li><li><a href="global.html#setStory">setStory</a></li><li><a href="global.html#setUser">setUser</a></li><li><a href="global.html#Title">Title</a></li><li><a href="global.html#User">User</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 08 2020 20:08:26 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 08 2020 21:39:53 GMT+0000 (Greenwich Mean Time)
 </footer>
 
 <script> prettyPrint(); </script>
