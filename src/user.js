@@ -1,6 +1,11 @@
 import React from 'react';
 
-import { Button, Toast, ToastBody, ToastHeader } from 'reactstrap';
+import {
+  Button,
+  Toast,
+  ToastBody,
+  ToastHeader,
+} from 'reactstrap';
 import { lexer, parser } from 'marked';
 
 import { fmtUNIXTime } from './utils';

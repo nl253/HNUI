@@ -1,73 +1,173 @@
 @import "~bootstrap/scss/bootstrap";
 
-$font-weight-base:            300;
-$line-height-base:            1.30;
+$font-weight-base: 300;
+$line-height-base: 1.30;
 
+$font-family-display: ZCOOL QingKe HuangYou, Londrina Shadow, Audiowide, monospace, sans-serif;
 $font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-$font-family-monospace:  "Fira Code", Hack, source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
-$font-family-serif:      Alegreya, Merriweather, Quattrocento, "Times New Roman", serif;
-$font-family-base:       $font-family-serif;
+$font-family-monospace: "Fira Code", Hack, source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+$font-family-serif: Alegreya, Merriweather, Quattrocento, "Times New Roman", serif;
+$font-family-base: $font-family-serif;
 
-$headings-font-family: $font-family-sans-serif;
-$headings-color:       #505050;
-$headings-font-weight: 300;
+$red: #ff7e8b;
+$light: lighten($dark, 40);
 
-$paragraph-margin-bottom:   0.5em;
-$headings-margin-bottom:    0.5em;
+$border-width: 0;
+$border-radius: 0;
+$border-radius-lg: 0;
+$border-radius-sm: 0;
 
-.btn, button {
-  font-family: $font-family-sans-serif;
+$green: #33ee00;
+
+$secondary: lighten($dark, 8);
+$info: rgba(39, 76, 102, 0.99);
+$warning: hsla(39, 100%, 32%, 0.79);
+$primary: $green;
+
+$dark: $gray-900;
+
+$code-color: $white;
+
+$toast-background-color: $dark;
+$toast-header-background-color: $dark;
+$toast-header-color: $white;
+$toast-color: $white;
+
+$pre-color: $white;
+$code-color: $red;
+
+$headings-font-family: $font-family-display;
+$headings-color: $green;
+$headings-font-weight: $font-weight-bold;
+$headings-margin-bottom: 0.5em;
+
+$paragraph-margin-bottom: 0.5em;
+
+$list-group-color: $white;
+$list-group-bg: $dark;
+$list-group-hover-bg: $light;
+$list-group-active-color: $light;
+$list-group-active-bg: $white;
+$list-group-border-radius: 0;
+
+
+$body-bg: $dark;
+$body-color: $white;
+
+$btn-font-family: $font-family-monospace;
+$btn-font-family: $font-family-monospace;
+
+$component-active-color: $light;
+$pagination-bg: $dark;
+$pagination-color: $white;
+
+.loading {
+  cursor: wait;
 }
 
-body {
-  font-size: 17.5px !important;
+.btn.disabled {
+  background-color: $gray-600 !important;
 }
 
-h1 {
+body, section {
+  background: $black;
+  color: $white;
+}
+
+pre > code {
+  @extend .p-3;
+  color: $code-color;
+  background-color: transparent;
+  border-radius: $border-radius;
+  box-shadow: none;
+}
+
+.h1 {
+  font-family: $headings-font-family;
+  font-size: 4rem;
+}
+
+.h1 > .btn {
   @extend .h1;
+  display: block;
+  margin: auto;
+  background: transparent !important;
 }
 
-h2 {
-  @extend .h2;
-  & > a {
-    @extend .text-capitalize;
-    @extend .text-wrap;
-    @extend .text-body;
-    @extend .text-decoration-none;
-    &:hover {
-      color: $gray-600;
-    }
-  }
+code {
+  @extend .p-1;
+  background-color: lighten($dark, 5);
+  border-radius: 3px;
+  box-shadow: 1px 1px 3px $light;
 }
 
-.list-group {
-  & > .list-group-item {
-    @extend .mb-2;
-    border: none;
-  }
-}
+.list-group-item {
+  @extend .mb-1;
+  border-radius: $border-radius;
+  border-width: $border-width;
 
-.btn {
-  &[disabled] {
-    background: initial;
+  &:hover {
+    background-color: $gray-900 !important;
   }
-  &.btn-secondary {
-    &.active {
-      background-color: $primary !important;
-      border: none;
-    }
-    background: $white;
-    color: $gray-900;
-    border: 1px solid white;
-    &:hover {
-      background: $gray-200;
-      border: 1px solid white;
-    }
+
+  &.list-group-item-secondary {
+    background-color: $secondary;
   }
 }
 
 .badge {
-  @extend .ml-2;
   @extend .mr-2;
-  min-width: 40px;
+  @extend .mb-2;
+
+  &.badge-info {
+    background-color: $info;
+  }
+}
+
+.btn {
+  border: none;
+
+  &.btn-warning {
+    background-color: $warning;
+  }
+
+  &.btn-info {
+    background-color: $info;
+  }
+
+  &.btn-secondary {
+    background-color: $secondary;
+
+    &.active {
+      background-color: darken($secondary, 10);
+    }
+  }
+}
+
+.pagination {
+  background-color: $pagination-bg !important;
+
+  & > .page-item {
+    background-color: $pagination-bg !important;
+
+    &:hover, & > .page-link:hover {
+      background-color: lighten($pagination-bg, 15) !important;
+    }
+
+    & > .page-link:not(.active) {
+      background-color: $pagination-bg !important;
+      border: none;
+      color: inherit;
+    }
+
+    &.active > .page-link {
+      @extend .font-weight-bolder;
+      background-color: $light !important;
+      color: $black;
+    }
+  }
+}
+
+.toast {
+  background-color: $toast-header-background-color !important;
 }

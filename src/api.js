@@ -1,27 +1,45 @@
 /**
- * @typedef {{poll: number, parts: number[], url: string, score: number, by: string, descendants: number, kids: ?Array<number>, time: number, title: string, type: string, id: number, text: string}} Item
+ * @typedef {{
+ *  poll: number,
+ *  parts: number[],
+ *  url: string,
+ *  score: number,
+ *  by: string,
+ *  descendants: number,
+ *  kids: ?Array<number>,
+ *  time: number,
+ *  title: string,
+ *  type: string,
+ *  id: number,
+ *  text: string}} Item
  */
 
 /**
- * @typedef {{id: string, delay: number, created: number, karma: number, about: string, submitted: number[]}} UserModel
+ * @typedef {{
+ *  id: string,
+ *  delay: number,
+ *  created: number,
+ *  karma: number,
+ *  about: string,
+ *  submitted: number[]}} UserModel
  */
 
 /**
  * @param {number} take
  * @param {number} page
  * @param {number} pageSize
- * @param {'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
+ * @param {
+ *  'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
  * @returns {Promise<string[]>}
  */
 const loadList = async (take, page, pageSize, what) => {
   try {
-    const res = await fetch(`${process.env.REACT_APP_HN_API_ROOT}/${what}.json`,
-      {
-        mode: 'cors',
-        headers: {
-          Accept: 'application/json, *',
-        },
-      });
+    const res = await fetch(`${process.env.REACT_APP_HN_API_ROOT}/${what}.json`, {
+      mode: 'cors',
+      headers: {
+        Accept: 'application/json, *',
+      },
+    });
     if (!res.ok) {
       throw new Error(JSON.stringify(res.body));
     }
@@ -62,7 +80,7 @@ const load = async (what, id) => {
           Authorization: process.env.REACT_APP_AUTHORIZATION,
           Accept: 'application/json, *',
         },
-      }
+      },
     );
     if (!res.ok) {
       throw new Error(JSON.stringify(res.body));
@@ -77,7 +95,8 @@ const load = async (what, id) => {
 };
 
 /**
- * @param {'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
+ * @param {
+ *  'topstories'|'updates'|'askstories'|'showstories'|'jobstories'|'newstories'|'beststories'} what
  * @param {number} take
  * @param {number} page
  * @param {number} pageSize
@@ -89,7 +108,7 @@ const loadStories = async (what, take, page, pageSize) => {
   return (await Promise.all(reqs))
     .filter(Boolean)
     .filter(({ type }) => type === 'story')
-    .sort((a, b) => a.score >= b.score ? -1 : 1);
+    .sort((a, b) => (a.score >= b.score ? -1 : 1));
 };
 
 export {

@@ -10,10 +10,10 @@ export default class Comment extends Component {
   constructor(props) {
     super(props);
     const { depth } = this.props;
-    const deltaColor = 5;
+    const deltaColor = 3.5;
     const deltaIndent = 2;
-    const start = 100;
-    this.background = `hsl(0, 0%, ${start - depth * deltaColor}%)`;
+    const start = 6;
+    this.background = `hsl(0, 0%, ${start + depth * deltaColor}%)`;
     this.indent = `${depth * deltaIndent}px`;
     this.state = {
       isDisplayed: false,
@@ -30,7 +30,9 @@ export default class Comment extends Component {
     this.setState({
       comment,
       isDisplayed: comment && comment.type === 'comment' && comment.text,
-      kids: comment.kids.map((kId) => <Comment setUser={setUser} depth={depth + 1} key={kId} id={kId} />),
+      kids: comment
+        .kids
+        .map((kId) => <Comment setUser={setUser} depth={depth + 1} key={kId} id={kId} />),
     });
   }
 
@@ -39,13 +41,18 @@ export default class Comment extends Component {
   }
 
   render() {
-    const { comment, kids, collapsed, isDisplayed } = this.state;
+    const {
+      comment,
+      kids,
+      collapsed,
+      isDisplayed,
+    } = this.state;
     return (
       isDisplayed
         ? (
-          <div className="p-2 rounded m-2" style={{ background: this.background }}>
+          <div className="p-2 m-2" style={{ background: this.background }}>
             <p className="font-weight-bold">
-              <Button size="sm" className="font-weight-bold" style={{ paddingLeft: 0, borderLeft: 0 }} onClick={() => this.props.setUser(comment.by)}>
+              <Button size="sm" className="font-weight-bold" onClick={() => this.props.setUser(comment.by)}>
                 {comment.by}
               </Button>
             </p>
@@ -56,12 +63,13 @@ export default class Comment extends Component {
                 <Button
                   color={!collapsed ? 'warning' : 'info'}
                   size="sm"
-                  className="mb-2"
+                  className="mb-2 d-block mx-auto text-white"
+                  style={{ width: '40%', maxWidth: '225px' }}
                   onClick={() => this.toggle()}
                 >
                   {collapsed
-                    ? `show ${comment.kids.length} replies`
-                    : 'hide'}
+                    ? `⮟ ${comment.kids.length} replies`
+                    : '⮝ close'}
                 </Button>
                 <ol style={{ display: collapsed ? 'none' : 'block', paddingLeft: this.indent }}>{kids}</ol>
               </div>

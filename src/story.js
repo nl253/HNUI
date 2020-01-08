@@ -11,13 +11,14 @@ import Comment from './comment';
  * @returns {*}
  * @constructor
  */
-const Story = ({ isDisplayed, story, isLoading, setUser }) => isDisplayed && (
+const Story = ({
+  isDisplayed, story, isLoading, setUser,
+}) => isDisplayed && (
   <div>
     <h2 className="h2 mt-2">
       <a href={story.url}>
         {story.title}
       </a>
-a
     </h2>
     <p>
       Author
