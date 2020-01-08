@@ -7,6 +7,10 @@ import {
   Spinner,
 } from 'reactstrap';
 
+/**
+ * @param {number} score
+ * @returns {'danger'|'warning'|'primary'}
+ */
 const getBadgeColor = (score) => {
   if (score > 300) {
     return 'danger';
