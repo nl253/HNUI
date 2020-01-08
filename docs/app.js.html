@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { Component } from 'react';
+import { Button } from 'reactstrap';
+import { loadStories, loadUser } from './api';
+import Paginator from './paginator';
+import Stories from './stories';
+import Story from './story';
+import Title from './title';
+import User from './user';
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      story: null,
+      user: null,
+      page: 0,
+      pageSize: 15,
+      take: 15 * 6,
+      storyList: [],
+      loading: [],
+    };
+    this.setStory = this.setStory.bind(this);
+    this.setUser = this.setUser.bind(this);
+    this.clearUser = this.clearUser.bind(this);
+    this.changePage = this.changePage.bind(this);
+    setTimeout(() => this.refreshStories(), 100);
+  }
+
+  async refreshStories() {
+    this.beginLoading('storyList');
+    document.body.classList.add('loading');
+    const { take, page, pageSize } = this.state;
+    this.setState({
+      storyList: await loadStories('topstories', take, page, pageSize),
+    });
+    this.endLoading('storyList');
+    document.body.classList.remove('loading');
+  }
+
+  /**
+   * @param {string} what
+   */
+  beginLoading(what) {
+    this.setState(({ loading }) => ({ loading: [...loading, what] }));
+  }
+
+  /**
+   * @param {string} what
+   */
+  endLoading(what) {
+    this.setState(({ loading }) => {
+      for (let i = 0; i &lt; loading.length; i += 1) {
+        if (loading[i] === what) {
+          return {
+            loading: loading.slice(0, i).concat(loading.slice(i + 1)),
+          };
+        }
+      }
+      return { loading };
+    });
+  }
+
+  /**
+   * @param {string} item
+   * @returns {boolean}
+   */
+  didLoad(...item) {
+    const { loading } = this.state;
+    return item.reduce((prev, focus) => prev &amp;&amp; loading.indexOf(focus) &lt; 0, true);
+  }
+
+
+  /**
+   * @returns {number}
+   */
+  get pageCount() {
+    const { take, pageSize } = this.state;
+    return Math.ceil(take / pageSize);
+  }
+
+  /**
+   * @param {number} page
+   */
+  changePage(page) {
+    this.setState({ page });
+    this.refreshStories();
+  }
+
+  /**
+   * @param {string} name
+   * @returns {Promise&lt;void>}
+   */
+  async setUser(name) {
+    this.beginLoading('user');
+    this.setState({ user: await loadUser(name) });
+    this.endLoading('user');
+  }
+
+  clearUser() {
+    this.setState({ user: null });
+  }
+
+  clearStory() {
+    this.setStory(null);
+  }
+
+  setStory(story) {
+    this.setState({ story });
+  }
+
+  /**
+   * @returns {*}
+   */
+  render() {
+    const {
+      user, storyList, page, story,
+    } = this.state;
+    return (
+      &lt;div className="container-fluid">
+        &lt;main className="row">
+          &lt;section className="col-sm-12 col-md-5 col-lg-5 col-xl-5">
+            &lt;Title changePage={this.changePage} />
+            &lt;div className="d-none d-xl-block d-lg-block d-md-block d-sm-none">
+              &lt;Stories
+                isLoading={storyList.length === 0 &amp;&amp; !this.didLoad('storyList')}
+                setStory={this.setStory}
+                story={story}
+                storyList={storyList}
+              />
+            &lt;/div>
+            &lt;div hidden={story !== null} className="d-block d-xl-none d-lg-none d-md-none d-sm-block">
+              {story === null &amp;&amp; (
+                &lt;Stories
+                  isLoading={storyList.length === 0 &amp;&amp; !this.didLoad('storyList')}
+                  setStory={this.setStory}
+                  story={story}
+                  storyList={storyList}
+                />
+              )}
+            &lt;/div>
+            &lt;div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none" hidden={storyList.length === 0}>
+              &lt;Paginator
+                page={page}
+                isDisabled={!this.didLoad('storyList')}
+                pageCount={this.pageCount}
+                changePage={this.changePage}
+              />
+            &lt;/div>
+            &lt;div className="mt-3 d-block d-xl-none d-lg-none d-md-none d-sm-block" hidden={storyList.length === 0}>
+              {story === null &amp;&amp; (
+                &lt;Paginator
+                  page={page}
+                  isDisabled={!this.didLoad('storyList')}
+                  pageCount={this.pageCount}
+                  changePage={this.changePage}
+                />
+              )}
+            &lt;/div>
+          &lt;/section>
+          &lt;section className="col-sm-12 col-md-7 col-lg-7 col-xl-7">
+            &lt;div hidden={story === null}>
+              &lt;Button
+                className="d-block d-xl-none d-lg-none d-md-none mx-auto"
+                style={{ width: '40%' }}
+                size="lg"
+                onClick={() => this.clearStory()}
+                color="dark"
+              >
+                Back
+              &lt;/Button>
+            &lt;/div>
+            &lt;Story
+              isLoading={!user &amp;&amp; !this.didLoad('user')}
+              isDisplayed={!!story}
+              setUser={this.setUser}
+              story={story}
+            />
+          &lt;/section>
+        &lt;/main>
+        &lt;User
+          user={user}
+          clearUser={this.clearUser}
+          isDisplayed={!!user}
+        />
+        &lt;footer style={{ marginTop: '40px' }}>
+          &lt;p className="text-center mx-auto">
+            Copyright &amp;copy;
+            {' '}
+            &lt;span>Norbert Logiewa&lt;/span>
+            {' '}
+            &lt;span>{new Date(Date.now()).getFullYear().toString()}&lt;/span>
+          &lt;/p>
+        &lt;/footer>
+      &lt;/div>
+    );
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Story.html">Story</a></li></ul><h3>Global</h3><ul><li><a href="global.html#beginLoading">beginLoading</a></li><li><a href="global.html#changePage">changePage</a></li><li><a href="global.html#checkValidServiceWorker">checkValidServiceWorker</a></li><li><a href="global.html#didLoad">didLoad</a></li><li><a href="global.html#endLoading">endLoading</a></li><li><a href="global.html#fmtUNIXTime">fmtUNIXTime</a></li><li><a href="global.html#load">load</a></li><li><a href="global.html#loadItem">loadItem</a></li><li><a href="global.html#loadList">loadList</a></li><li><a href="global.html#loadStories">loadStories</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#pageCount">pageCount</a></li><li><a href="global.html#Paginator">Paginator</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#registerValidSW">registerValidSW</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#setUser">setUser</a></li><li><a href="global.html#Stories">Stories</a></li><li><a href="global.html#Title">Title</a></li><li><a href="global.html#User">User</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Jan 08 2020 18:41:41 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
