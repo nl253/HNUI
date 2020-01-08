@@ -7,6 +7,16 @@ import {
   Spinner,
 } from 'reactstrap';
 
+const getBadgeColor = (score) => {
+  if (score > 300) {
+    return 'danger';
+  }
+  if (score > 100) {
+    return 'warning';
+  }
+  return 'primary';
+};
+
 const spinnerStyles = {
   width: '3rem',
   height: '3rem',
@@ -52,12 +62,7 @@ const Stories = ({
                 setStory(s);
               }}
             >
-              <Badge
-                pill
-                color={s.score > 300
-                  ? 'danger'
-                  : s.score > 100 ? 'warning' : 'primary'}
-              >
+              <Badge pill color={getBadgeColor(s.score)}>
                 <span>{s.score}</span>
               </Badge>
               <span>{s.title}</span>

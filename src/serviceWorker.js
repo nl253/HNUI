@@ -50,6 +50,7 @@ const registerValidSW = async (swUrl, config) => {
  * @param config
  * @returns {Promise<void>}
  */
+// eslint-disable-next-line consistent-return
 const checkValidServiceWorker = async (swUrl, config) => {
   // Check if the service worker can be found. If it can't reload the page.
   try {
@@ -78,6 +79,7 @@ export const register = (config) => {
       return;
     }
 
+    // eslint-disable-next-line consistent-return
     const listener = async () => {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
       if (!(window.location.hostname === 'localhost'
