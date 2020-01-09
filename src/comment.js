@@ -80,9 +80,11 @@ export default class Comment extends Component {
                   style={{ width: '40%', maxWidth: '225px' }}
                   onClick={() => this.toggle()}
                 >
-                  {collapsed
-                    ? `⮟ ${comment.kids.length} replies`
-                    : '⮝ close'}
+                  {
+                    collapsed
+                      ? <div>{comment.kids.length} replies <p className="rotate-90 p-0 m-0 d-inline-block mt-0 position-relative" style={{ top: '2px', fontSize: '1.1rem' }}>&gt;</p></div>
+                      : <div>close <p className="rotate-270 p-0 m-0 d-inline-block ml-2 position-relative" style={{ top: '1px', fontSize: '1.1rem' }}>&gt;</p></div>
+                  }
                 </Button>
                 <ol style={{ display: collapsed ? 'none' : 'block', paddingLeft: this.indent }}>
                   { collapsed ? [] : kids}
