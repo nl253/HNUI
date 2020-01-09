@@ -13,7 +13,7 @@ const wrapperStyles = {
 };
 
 /**
- * @param changePage
+ * @param {function(number)} changePage
  * @param {number} page
  * @param {boolean} isDisabled
  * @param {number} pageCount
@@ -30,11 +30,7 @@ const Paginator = ({
       <PaginationItem className={isDisabled || page === 0 ? 'disabled' : ''}>
         <PaginationLink
           className={isDisabled || page === 0 ? 'disabled' : ''}
-          onClick={() => {
-            if (!isDisabled) {
-              changePage(page - 1);
-            }
-          }}
+          onClick={() => (!isDisabled && page > 0 ? changePage(page - 1) : null)}
           previous
           href="#"
         />
@@ -42,11 +38,7 @@ const Paginator = ({
       {Array(pageCount).fill(0).map((_, idx) => (
         <PaginationItem
           className={isDisabled ? 'disabled' : ''}
-          onClick={() => {
-            if (!isDisabled) {
-              changePage(idx);
-            }
-          }}
+          onClick={() => (isDisabled ? null : changePage(idx))}
           active={page === idx}
           key={idx}
         >
@@ -56,11 +48,7 @@ const Paginator = ({
       <PaginationItem className={isDisabled || page === pageCount - 1 ? 'disabled' : ''}>
         <PaginationLink
           className={isDisabled || page === pageCount - 1 ? 'disabled' : ''}
-          onClick={() => {
-            if (!isDisabled) {
-              changePage(page + 1);
-            }
-          }}
+          onClick={() => (!isDisabled && page < pageCount - 1 ? changePage(page + 1) : null)}
           next
           href="#"
         />

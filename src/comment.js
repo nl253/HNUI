@@ -24,16 +24,26 @@ export default class Comment extends Component {
     this.init();
   }
 
+  componentDidMount() {
+    this._mounted = true;
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
+  }
+
   async init() {
     const { depth, setUser, id } = this.props;
     const comment = await loadItem(id);
-    this.setState({
-      comment,
-      isDisplayed: comment && comment.type === 'comment' && comment.text,
-      kids: comment
-        .kids
-        .map((kId) => <Comment setUser={setUser} depth={depth + 1} key={kId} id={kId} />),
-    });
+    if (this._mounted) {
+      this.setState({
+        comment,
+        isDisplayed: comment && comment.type === 'comment' && comment.text,
+        kids: comment
+          .kids
+          .map((kId) => <Comment setUser={setUser} depth={depth + 1} key={kId} id={kId} />),
+      });
+    }
   }
 
   toggle() {

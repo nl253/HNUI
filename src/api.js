@@ -4,6 +4,7 @@ import * as CACHE from 'localforage';
  * @typedef {{
  *  poll: number,
  *  parts: number[],
+ *  ord: number,
  *  url: string,
  *  score: number,
  *  by: string,
@@ -133,16 +134,21 @@ const load = async (what, id) => {
  *        |'newstories'
  *        |'beststories'
  *        } what
+ * @param {number} [pageCount]
+ * @param {number} [pageSize]
  * @returns {Promise<Item[]>}
  */
-async function* loadStories(what) {
-  const ids = (await loadList(what)).slice(0, 6 * 20);
+async function* loadStories(what, pageCount = 6, pageSize = 20) {
+  const ids = (await loadList(what)).slice(0, pageCount * pageSize);
   const reqs = ids.map((id) => loadItem(id));
+  let i = 0;
   for (const p of reqs) {
     // eslint-disable-next-line no-await-in-loop
     const result = await p;
     if (result && result.type === 'story') {
+      result.ord = i;
       yield result;
+      i += 1;
     }
   }
 }

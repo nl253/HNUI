@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import {
-  clearCache,
-  loadItem,
-  loadStories,
-  loadUser,
-} from './api';
+import { clearCache, loadItem, loadStories, loadUser } from './api';
 import Paginator from './paginator';
 import Stories from './stories';
 import Story from './story';
@@ -20,7 +15,7 @@ export default class App extends Component {
       user: null,
       page: 0,
       pageSize: 15,
-      take: 15 * 6,
+      pageCount: 6,
       storyList: [],
       loading: [],
     };
@@ -71,7 +66,8 @@ export default class App extends Component {
     this.beginLoading('storyList');
     document.body.classList.add('loading');
     this.setState({ storyList: [] });
-    for await (const story of loadStories('topstories')) {
+    const { pageCount, pageSize } = this.state;
+    for await (const story of loadStories('topstories', pageCount, pageSize)) {
       this.setState((state) => ({
         storyList: state.storyList.concat([story]),
       }));
@@ -104,51 +100,27 @@ export default class App extends Component {
   }
 
   /**
-   * @param {string} item
+   * @param {...string} items
    * @returns {boolean}
    */
-  didLoad(...item) {
+  didLoad(...items) {
     const { loading } = this.state;
-    return item.reduce((prev, focus) => prev && loading.indexOf(focus) < 0, true);
+    return items.reduce((prev, focus) => prev && loading.indexOf(focus) < 0, true);
   }
 
 
   /**
-   * @returns {number}
-   */
-  get pageCount() {
-    const { take, pageSize } = this.state;
-    return Math.ceil(take / pageSize);
-  }
-
-  /**
-   * @param {number} page
+   * @param {number} newPage
    * @param {boolean} [doSaveHistory]
-   * @return {Promise<void>}
    */
-  async changePage(page, doSaveHistory = true) {
-    const { state } = this;
-    const { story, storyList } = state;
+  changePage(newPage, doSaveHistory = true) {
+    const { story, storyList, page } = this.state;
     if (doSaveHistory) {
-      if (story === null) {
-        const t = `Hacker News p. ${page}`;
-        const url = `/${page}`;
-        const data = { story, page };
-        window.history.pushState(data, t, url);
-      } else {
-        const { id, title } = story;
-        const t = `Hacker News "${title}" p. ${page}`;
-        const data = { story, page };
-        const url = `/${page}/${id}`;
-        window.history.pushState(data, t, url);
-      }
+      this.saveHistory(newPage, story);
     }
-    if (state.page === page && storyList.length > 0) {
-      return;
+    if (page !== newPage || storyList.length === 0) {
+      this.setState({ page: newPage });
     }
-    this.setState({ page });
-    // eslint-disable-next-line no-return-await
-    // return await this.refreshStories();
   }
 
   /**
@@ -170,23 +142,30 @@ export default class App extends Component {
   }
 
   /**
-   * @param {Item|null} story
+   * @param {Item|null} newStory
    * @param {boolean} [doSaveHistory]
    */
-  setStory(story, doSaveHistory = true) {
+  setStory(newStory, doSaveHistory = true) {
+    const { page, story } = this.state;
     if (doSaveHistory) {
-      const { state } = this;
-      const { page } = state;
-      const { title, id } = story;
-      const data = { story, page };
-      const t = `Hacker News "${title}" p. ${page}`;
-      const url = `/${page}/${id}`;
-      window.history.pushState(data, t, url);
+      this.saveHistory(page, newStory);
     }
-    if (this.state.story !== null && this.state.story.id === story.id) {
-      return;
+    if (story === null || newStory === null || story.id !== newStory.id) {
+      this.setState({ story: newStory });
     }
-    this.setState({ story });
+  }
+
+  /**
+   * @param {number} newPage
+   * @param {Item|null} newStory
+   */
+  saveHistory(newPage, newStory) {
+    if (newStory === null) {
+      window.history.pushState({ story: null, page: newPage }, `Hacker News p. ${newPage}`, `/${newPage}`);
+    } else {
+      const { title, id } = newStory;
+      window.history.pushState({ story: newStory, page: newPage }, `Hacker News "${title}" p. ${newPage}`, `/${newPage}/${id}`);
+    }
   }
 
   /**
@@ -198,7 +177,6 @@ export default class App extends Component {
       storyList,
       pageSize,
       page,
-      take,
       story,
     } = this.state;
     return (
@@ -206,42 +184,43 @@ export default class App extends Component {
         <main className="row">
           <section className="col-sm-12 col-md-5 col-lg-5 col-xl-5">
             <Title refresh={async () => {
-              await clearCache();
+              const p = clearCache();
+              this.clearStory();
+              this.clearUser();
+              await p;
               this.refreshStories();
             }}
             />
-            <div className="d-none d-xl-block d-lg-block d-md-block d-sm-none">
-              <Stories
-                page={page}
-                take={take}
-                pageSize={pageSize}
-                isLoading={storyList.length === 0 && !this.didLoad('storyList')}
-                setStory={this.setStory}
-                story={story}
-                storyList={storyList}
-              />
-            </div>
             {!!story && (
-              <div className="d-block d-xl-none d-lg-none d-md-none d-sm-block">
-                {story === null && (
-                  <Stories
-                    page={page}
-                    pageSize={pageSize}
-                    take={take}
-                    isLoading={storyList.length === 0 && !this.didLoad('storyList')}
-                    setStory={this.setStory}
-                    story={story}
-                    storyList={storyList}
-                  />
-                )}
+              <div className="d-sm-none d-md-block d-lg-block d-xl-block d-none">
+                <Stories
+                  page={page}
+                  pageSize={pageSize}
+                  isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+                  setStory={this.setStory}
+                  story={story}
+                  storyList={storyList}
+                />
+              </div>
+            )}
+            {!story && (
+              <div className="">
+                <Stories
+                  page={page}
+                  pageSize={pageSize}
+                  isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+                  setStory={this.setStory}
+                  story={story}
+                  storyList={storyList}
+                />
               </div>
             )}
             {storyList.length > 0 && (
               <div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none">
                 <Paginator
                   page={page}
-                  isDisabled={!this.didLoad('storyList')}
-                  pageCount={this.pageCount}
+                  isDisabled={false}
+                  pageCount={this.state.pageCount}
                   changePage={this.changePage}
                 />
               </div>
@@ -251,8 +230,8 @@ export default class App extends Component {
                 {story === null && (
                   <Paginator
                     page={page}
-                    isDisabled={!this.didLoad('storyList')}
-                    pageCount={this.pageCount}
+                    isDisabled={false}
+                    pageCount={this.state.pageCount}
                     changePage={this.changePage}
                   />
                 )}

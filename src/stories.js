@@ -6,11 +6,9 @@ import {
 export default class Stories extends React.Component {
   constructor(props) {
     super(props);
-    const {
-      storyList, pageSize, take, page,
-    } = props;
+    const { storyList, pageSize, page } = props;
     this.state = {
-      storyList: storyList.slice(0, take).slice(page * pageSize, (page + 1) * pageSize),
+      storyList: storyList.slice(page * pageSize, (page + 1) * pageSize),
     };
   }
 
@@ -19,12 +17,11 @@ export default class Stories extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { take, page, pageSize } = this.props;
+    const { page, pageSize } = this.props;
     // eslint-disable-next-line react/no-direct-mutation-state
     this.state.storyList = this
       .props
       .storyList
-      .slice(0, take)
       .slice(page * pageSize, (page + 1) * pageSize);
   }
 
@@ -32,23 +29,26 @@ export default class Stories extends React.Component {
    * @param {'freshness'
    *        |'votes'
    *        |'comments'
-   *        |'freshnessReverse'
-   *        |'votesReverse'
-   *        |'commentsRevers'} sortBy
+   *        |'hotness'
+   *        } sortBy
    */
   reorder(sortBy) {
     const {
-      storyList, take, page, pageSize,
+      storyList,
+      page,
+      pageSize,
     } = this.props;
     if (sortBy === 'freshness') {
       storyList.sort((x1, x2) => (x2.time >= x1.time ? 1 : -1));
     } else if (sortBy === 'votes') {
       storyList.sort((x1, x2) => (x2.score >= x1.score ? 1 : -1));
+    } else if (sortBy === 'hotness') {
+      storyList.sort((x1, x2) => (x2.ord >= x1.ord ? 1 : -1));
     } else if (sortBy === 'comments') {
       storyList.sort((x1, x2) => (x2.descendants >= x1.descendants ? 1 : -1));
     }
     this.setState({
-      storyList: storyList.slice(0, take).slice(page * pageSize, (page + 1) * pageSize),
+      storyList: storyList.slice(page * pageSize, (page + 1) * pageSize),
     });
   }
 
@@ -103,15 +103,22 @@ export default class Stories extends React.Component {
               </Button>
               <Button
                 color="danger"
-                onClick={() => this.reorder('votes')}
+                onClick={() => this.reorder('hotness')}
               >
-                ⮟ #Upvotes
+                ⮟ Hot
               </Button>
               <Button
                 color="warning"
+                className="text-white"
+                onClick={() => this.reorder('votes')}
+              >
+                ⮟ Upvotes
+              </Button>
+              <Button
+                color="primary"
                 onClick={() => this.reorder('comments')}
               >
-                ⮟ #Comments
+                ⮟ Comments
               </Button>
             </div>
 
