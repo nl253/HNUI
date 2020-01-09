@@ -50,6 +50,7 @@
   "root": true,
   "rules": {
     "react/sort-comp": 0,
+    "no-console": 0,
     "react/destructuring-assignment": 1,
     "react/no-array-index-key": 1,
     "radix": 0,

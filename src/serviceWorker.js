@@ -84,6 +84,7 @@ export const register = (config) => {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
       if (!(window.location.hostname === 'localhost'
         || window.location.hostname === '[::1]'
+        // eslint-disable-next-line
         || window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4]\d|[01]?\d{1,2})){3}$/))) {
         return registerValidSW(swUrl, config);
       }

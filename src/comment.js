@@ -25,16 +25,19 @@ export default class Comment extends Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line no-underscore-dangle
     this._mounted = true;
   }
 
   componentWillUnmount() {
+    // eslint-disable-next-line no-underscore-dangle
     this._mounted = false;
   }
 
   async init() {
     const { depth, setUser, id } = this.props;
     const comment = await loadItem(id);
+    // eslint-disable-next-line no-underscore-dangle
     if (this._mounted) {
       this.setState({
         comment,

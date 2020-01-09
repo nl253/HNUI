@@ -9,7 +9,7 @@ import * as CACHE from 'localforage';
  *  score: number,
  *  by: string,
  *  descendants: number,
- *  kids: ?Array<number>,
+ *  kids: number[],
  *  time: number,
  *  title: string,
  *  type: string,
@@ -38,7 +38,7 @@ const clearCache = () => CACHE.clear();
  *        |'newstories'
  *        |'beststories'
  *        } what
- * @returns {Promise<string[]>}
+ * @returns {Promise<number[]>}
  */
 const loadList = async (what) => {
   try {

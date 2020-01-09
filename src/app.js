@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import { clearCache, loadItem, loadStories, loadUser } from './api';
+import {
+  clearCache,
+  loadItem,
+  loadStories,
+  loadUser,
+} from './api';
 import Paginator from './paginator';
 import Stories from './stories';
 import Story from './story';
@@ -116,7 +121,7 @@ export default class App extends Component {
   changePage(newPage, doSaveHistory = true) {
     const { story, storyList, page } = this.state;
     if (doSaveHistory) {
-      this.saveHistory(newPage, story);
+      App.saveHistory(newPage, story);
     }
     if (page !== newPage || storyList.length === 0) {
       this.setState({ page: newPage });
@@ -148,7 +153,7 @@ export default class App extends Component {
   setStory(newStory, doSaveHistory = true) {
     const { page, story } = this.state;
     if (doSaveHistory) {
-      this.saveHistory(page, newStory);
+      App.saveHistory(page, newStory);
     }
     if (story === null || newStory === null || story.id !== newStory.id) {
       this.setState({ story: newStory });
@@ -159,7 +164,7 @@ export default class App extends Component {
    * @param {number} newPage
    * @param {Item|null} newStory
    */
-  saveHistory(newPage, newStory) {
+  static saveHistory(newPage, newStory) {
     if (newStory === null) {
       window.history.pushState({ story: null, page: newPage }, `Hacker News p. ${newPage}`, `/${newPage}`);
     } else {
@@ -176,6 +181,7 @@ export default class App extends Component {
       user,
       storyList,
       pageSize,
+      pageCount,
       page,
       story,
     } = this.state;
@@ -220,7 +226,7 @@ export default class App extends Component {
                 <Paginator
                   page={page}
                   isDisabled={false}
-                  pageCount={this.state.pageCount}
+                  pageCount={pageCount}
                   changePage={this.changePage}
                 />
               </div>
@@ -231,7 +237,7 @@ export default class App extends Component {
                   <Paginator
                     page={page}
                     isDisabled={false}
-                    pageCount={this.state.pageCount}
+                    pageCount={pageCount}
                     changePage={this.changePage}
                   />
                 )}
