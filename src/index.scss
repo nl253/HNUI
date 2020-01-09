@@ -61,6 +61,10 @@ $component-active-color: $light;
 $pagination-bg: $dark;
 $pagination-color: $white;
 
+.rotate-90 {
+  transform: rotate(90deg);
+}
+
 .loading {
   cursor: wait;
 }

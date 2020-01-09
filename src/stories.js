@@ -99,26 +99,30 @@ export default class Stories extends React.Component {
                 color="info"
                 onClick={() => this.reorder('freshness')}
               >
-                ⮟ Freshness
+                Freshness
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
               </Button>
               <Button
                 color="danger"
                 onClick={() => this.reorder('hotness')}
               >
-                ⮟ Hot
+                Hot
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
               </Button>
               <Button
                 color="warning"
                 className="text-white"
                 onClick={() => this.reorder('votes')}
               >
-                ⮟ Upvotes
+                Upvotes
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
               </Button>
               <Button
                 color="primary"
                 onClick={() => this.reorder('comments')}
               >
-                ⮟ Comments
+                Comments
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
               </Button>
             </div>
 
