@@ -100,14 +100,14 @@ export default class Stories extends React.Component {
                 onClick={() => this.reorder('freshness')}
               >
                 Freshness
-                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{ top: '2px' }}>&gt;</p>
               </Button>
               <Button
                 color="danger"
                 onClick={() => this.reorder('hotness')}
               >
                 Hot
-                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{ top: '2px' }}>&gt;</p>
               </Button>
               <Button
                 color="warning"
@@ -115,14 +115,14 @@ export default class Stories extends React.Component {
                 onClick={() => this.reorder('votes')}
               >
                 Upvotes
-                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{ top: '2px' }}>&gt;</p>
               </Button>
               <Button
                 color="primary"
                 onClick={() => this.reorder('comments')}
               >
                 Comments
-                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{top: '2px'}}>&gt;</p>
+                <p className="rotate-90 p-0 m-0 d-inline-block ml-2 position-relative" style={{ top: '2px' }}>&gt;</p>
               </Button>
             </div>
 
