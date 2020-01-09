@@ -88,7 +88,7 @@ export default class Stories extends React.Component {
               style={{
                 marginTop: '40px',
                 marginBottom: '20px',
-                flexWrap: 'wrap',
+                flexWrap: 'nowrap',
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'space-around',
@@ -96,7 +96,9 @@ export default class Stories extends React.Component {
               }}
             >
               <Button
-                color="info"
+                color="success"
+                className="d-sm-none d-md-inline d-lg-inline d-xl-inline d-none"
+                size="sm"
                 onClick={() => this.reorder('freshness')}
               >
                 Freshness

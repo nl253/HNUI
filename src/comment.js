@@ -74,7 +74,7 @@ export default class Comment extends Component {
             {comment.kids.length > 0 && (
               <div>
                 <Button
-                  color={!collapsed ? 'warning' : 'info'}
+                  color={collapsed ? 'info' : 'warning'}
                   size="sm"
                   className="mb-2 d-block mx-auto text-white"
                   style={{ width: '40%', maxWidth: '225px' }}
