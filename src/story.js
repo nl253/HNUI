@@ -35,7 +35,7 @@ const Story = ({
     <p dangerouslySetInnerHTML={{ __html: story.text }} />
     <div className="ml-1 mr-2">
       <h3 className="h3">Comments</h3>
-      <ol style={{ paddingLeft: 0 }}>
+      <ol className="pl-0">
         {story.kids.map((id) => (
           <Comment
             setUser={setUser}

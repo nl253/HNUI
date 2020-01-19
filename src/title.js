@@ -7,7 +7,10 @@ import { Button } from 'reactstrap';
  */
 const Title = ({ refresh }) => (
   <h1 className="h1">
-    <Button style={{ background: 'transparent' }} onClick={() => refresh(0)}>
+    <Button
+      className="bg-transparent"
+      onClick={() => refresh()}
+    >
       Hacker News
     </Button>
   </h1>

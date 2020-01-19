@@ -5,13 +5,6 @@ import {
   PaginationLink,
 } from 'reactstrap';
 
-const wrapperStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-};
-
 /**
  * @param {function(number)} changePage
  * @param {number} page
@@ -25,12 +18,18 @@ const Paginator = ({
   isDisabled,
   pageCount,
 }) => (
-  <div style={wrapperStyles}>
+  <div className="d-flex flex-column justify-content-center align-items-center">
     <Pagination size="sm">
       <PaginationItem className={isDisabled || page === 0 ? 'disabled' : ''}>
         <PaginationLink
           className={isDisabled || page === 0 ? 'disabled' : ''}
-          onClick={() => (!isDisabled && page > 0 ? changePage(page - 1) : null)}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (!isDisabled && page > 0) {
+              changePage(page - 1);
+            }
+          }}
           previous
           href="#"
         />
@@ -38,7 +37,13 @@ const Paginator = ({
       {Array(pageCount).fill(0).map((_, idx) => (
         <PaginationItem
           className={isDisabled ? 'disabled' : ''}
-          onClick={() => (isDisabled ? null : changePage(idx))}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (!isDisabled) {
+              changePage(idx);
+            }
+          }}
           active={page === idx}
           key={idx}
         >
@@ -48,7 +53,13 @@ const Paginator = ({
       <PaginationItem className={isDisabled || page === pageCount - 1 ? 'disabled' : ''}>
         <PaginationLink
           className={isDisabled || page === pageCount - 1 ? 'disabled' : ''}
-          onClick={() => (!isDisabled && page < pageCount - 1 ? changePage(page + 1) : null)}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (!isDisabled && page < pageCount - 1) {
+              changePage(page + 1);
+            }
+          }}
           next
           href="#"
         />

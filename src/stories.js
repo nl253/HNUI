@@ -72,28 +72,14 @@ export default class Stories extends React.Component {
       isLoading
         ? (
           <Spinner
-            className="mt-5"
-            style={{
-              width: '3rem',
-              height: '3rem',
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              display: 'block',
-            }}
+            className="mt-5 mr-auto ml-auto d-block"
+            style={{ width: '3rem', height: '3rem' }}
           />
         )
         : (
-          <div>
+          <div className="mt-sm-2 mt-md-2 mt-lg-3 mt-xl-3 mt-sm-0">
             <div
-              style={{
-                marginTop: '40px',
-                marginBottom: '20px',
-                flexWrap: 'nowrap',
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                alignItems: 'center',
-              }}
+              className="flex-row d-flex flex-nowrap align-items-center justify-content-around mb-4 mb-sm-4 mb-md-2 mb-lg-3 mb-xl-3"
             >
               <Button
                 color="success"
@@ -132,17 +118,13 @@ export default class Stories extends React.Component {
               {this.state.storyList.map((s) => (
                 <ListGroupItem
                   key={s.id}
-                  style={{ padding: 0, background: 'transparent' }}
+                  className="p-0 bg-transparent"
                   active={story !== null && story.id === s.id}
                 >
                   <Button
                     disabled={isLoading}
                     active={story !== null && story.id === s.id}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      background: 'transparent',
-                    }}
+                    className="bg-transparent w-100 text-left"
                     onClick={(e) => {
                       e.preventDefault();
                       setStory(s);

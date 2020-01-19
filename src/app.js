@@ -194,7 +194,8 @@ export default class App extends Component {
               this.clearStory();
               this.clearUser();
               await p;
-              this.refreshStories();
+              await this.refreshStories();
+              this.changePage(this.state.page);
             }}
             />
             {!!story && (
@@ -248,11 +249,11 @@ export default class App extends Component {
             {story !== null && (
               <div>
                 <Button
-                  className="d-block d-xl-none d-lg-none d-md-none mx-auto"
-                  style={{ width: '40%' }}
+                  className="d-block d-xl-none d-lg-none d-md-none mx-auto mt-sm text-white p-1 mb-4"
+                  style={{ width: '80%', maxWidth: '200px', fontSize: '1rem' }}
                   size="lg"
                   onClick={() => this.clearStory()}
-                  color="dark"
+                  color="warning"
                 >
                   Back
                 </Button>
@@ -271,7 +272,7 @@ export default class App extends Component {
           clearUser={this.clearUser}
           isDisplayed={!!user}
         />
-        <footer style={{ marginTop: '40px' }}>
+        <footer className="mt-2">
           <p className="text-center mx-auto">
             Copyright &copy;
             {' '}
