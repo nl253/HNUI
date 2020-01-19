@@ -4,6 +4,7 @@ import { Button } from 'reactstrap';
 
 import { loadItem } from './api';
 import { fmtUNIXTime } from './utils';
+import UserBtn from './user-btn';
 
 
 export default class Comment extends Component {
@@ -65,9 +66,7 @@ export default class Comment extends Component {
         ? (
           <div className="p-2 m-2" style={{ background: this.background }}>
             <p className="font-weight-bold">
-              <Button size="sm" className="font-weight-bold" onClick={() => this.props.setUser(comment.by)}>
-                {comment.by}
-              </Button>
+              <UserBtn id={comment.by} name={comment.by} setUser={this.props.setUser} />
             </p>
             <p><time className="font-italic">{fmtUNIXTime(comment.time)}</time></p>
             <p dangerouslySetInnerHTML={{ __html: parser(lexer(comment.text || '')) }} />

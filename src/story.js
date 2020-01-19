@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from 'reactstrap';
 
 import Comment from './comment';
+import UserBtn from './user-btn';
 
 /**
  * @param {boolean} isDisplayed
@@ -21,17 +22,7 @@ const Story = ({
         {story.title}
       </a>
     </h2>
-    <p>
-      Author
-      <Button
-        disabled={isLoading}
-        className="ml-2"
-        size="sm"
-        onClick={() => setUser(story.by)}
-      >
-        {story.by}
-      </Button>
-    </p>
+    <p>Author <UserBtn setUser={setUser} name={story.by} id={story.by} /></p>
     <p dangerouslySetInnerHTML={{ __html: story.text }} />
     <div className="ml-1 mr-2">
       <h3 className="h3">Comments</h3>
