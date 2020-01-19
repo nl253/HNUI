@@ -278,7 +278,7 @@ export default class App extends Component {
             {' '}
             <span>Norbert Logiewa</span>
             {' '}
-            <span>{new Date(Date.now()).getFullYear().toString()}</span>
+            <time>{new Date(Date.now()).getFullYear().toString()}</time>
           </p>
         </footer>
       </div>

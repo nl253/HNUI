@@ -1,65 +1,20 @@
 @import "~bootstrap/scss/bootstrap";
 
-$font-weight-base: 300;
-$line-height-base: 1.30;
-
 $font-family-display: ZCOOL QingKe HuangYou, Londrina Shadow, Audiowide, monospace, sans-serif;
-$font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-$font-family-monospace: "Fira Code", Hack, source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
-$font-family-serif: Alegreya, Merriweather, Quattrocento, "Times New Roman", serif;
-$font-family-base: $font-family-serif;
 
 $red: #ff7e8b;
-$light: lighten($dark, 40);
-
-$border-width: 0;
-$border-radius: 0;
-$border-radius-lg: 0;
-$border-radius-sm: 0;
-
-$green: #33ee00;
-
-$secondary: lighten($dark, 8);
+$light: lighten($dark, 40%);
+$secondary: lighten($dark, 6%);
 $info: rgba(39, 76, 102, 0.99);
 $warning: hsla(39, 100%, 32%, 0.79);
-$primary: $green;
+$primary: $blue;
+$dark: $gray-800;
 
-$dark: $gray-900;
-
-$code-color: $white;
-
-$toast-background-color: $dark;
-$toast-header-background-color: $dark;
-$toast-header-color: $white;
-$toast-color: $white;
-
-$pre-color: $white;
-$code-color: $red;
-
-$headings-font-family: $font-family-display;
-$headings-color: $green;
-$headings-font-weight: $font-weight-bold;
-$headings-margin-bottom: 0.5em;
-
-$paragraph-margin-bottom: 0.5em;
-
-$list-group-color: $white;
-$list-group-bg: $dark;
-$list-group-hover-bg: $light;
-$list-group-active-color: $light;
-$list-group-active-bg: $white;
-$list-group-border-radius: 0;
-
-
-$body-bg: $dark;
-$body-color: $white;
-
-$btn-font-family: $font-family-monospace;
-$btn-font-family: $font-family-monospace;
-
-$component-active-color: $light;
-$pagination-bg: $dark;
-$pagination-color: $white;
+* {
+  border: 0 solid black !important;
+  border-radius: 2px !important;
+  outline: none;
+}
 
 .rotate-90 {
   transform: rotate(90deg);
@@ -70,29 +25,118 @@ $pagination-color: $white;
 }
 
 .loading {
+  pointer-events: none;
   cursor: wait;
 }
 
-.btn.disabled {
-  background-color: $gray-600 !important;
+.btn {
+  text-align: center;
+  vertical-align: center;
+  &.disabled {
+    background-color: $gray-600 !important;
+    &:hover {
+      pointer-events: none;
+      cursor: cell;
+    }
+  }
+  &.btn-secondary {
+    background-color: $secondary;
+    &:hover {
+      background: darken($secondary, 10%);
+    }
+    &.active {
+      background-color: darken($secondary, 8%);
+    }
+  }
+  &.btn-warning {
+    background-color: $warning;
+    &:hover {
+      background: darken($warning, 10%);
+    }
+    &.active {
+      background-color: darken($warning, 8%);
+    }
+  }
+  &.btn-danger {
+    &:hover {
+      background: darken($danger, 10%);
+    }
+    &.active {
+      background-color: darken($danger, 8%);
+    }
+  }
+  &.btn-info {
+    background-color: $info;
+    &:hover {
+      background: darken($info, 10%);
+    }
+    &.active {
+      background-color: darken($info, 8%);
+    }
+  }
+  &.btn-light {
+    &:hover {
+      background: darken($light, 10%);
+    }
+    &.active {
+      background-color: darken($light, 8%);
+    }
+  }
+  &.btn-success {
+    &:hover {
+      background: darken($success, 10%);
+    }
+    &.active {
+      background-color: darken($success, 8%);
+    }
+  }
+  &.btn-dark {
+    &:hover {
+      background: darken($dark, 10%);
+    }
+    &.active {
+      background-color: darken($dark, 8%);
+    }
+  }
+  &.btn-primary {
+    &:hover {
+      background: darken($primary, 10%);
+    }
+    &.active {
+      background-color: darken($primary, 8%);
+    }
+  }
 }
 
 body, section {
+  font-size: 16px;
   background: $black;
   color: $white;
+  line-height: 1.25;
+}
+
+p {
+  @extend .mb-3;
 }
 
 pre > code {
   @extend .p-3;
-  color: $code-color;
+  color: $red;
   background-color: transparent;
-  border-radius: $border-radius;
   box-shadow: none;
 }
 
 .h1 {
-  font-family: $headings-font-family;
+  font-family: $font-family-display;
   font-size: 4rem;
+  & > a:hover, &.btn:hover {
+    text-decoration: none;
+    color: $light !important;
+  }
+}
+
+.h2 > a:hover {
+  text-decoration: none;
 }
 
 .h1 > .btn {
@@ -112,6 +156,13 @@ pre > code {
   .h3 {
     font-size: 1rem;
   }
+  body {
+    font-size: 14px;
+  }
+  .btn {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
 }
 
 @media only screen and (max-width: 1200px) {
@@ -124,27 +175,31 @@ pre > code {
   .h3 {
     font-size: 1.4rem;
   }
+  body {
+    font-size: 15px;
+  }
+  .btn {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
 }
-
 
 code {
   @extend .p-1;
-  background-color: lighten($dark, 5);
+  background-color: lighten($dark, 5%);
   border-radius: 3px;
   box-shadow: 1px 1px 3px $light;
 }
 
 .list-group-item {
   @extend .mb-1;
-  border-radius: $border-radius;
-  border-width: $border-width;
 
   &:hover {
-    background-color: $gray-900 !important;
+    background-color: darken($dark, 12%) !important;
   }
 
   &.active {
-    background-color: lighten($gray-900, 10) !important;
+    background-color: darken($dark, 7%) !important;
   }
 
   &.list-group-item-secondary {
@@ -161,50 +216,29 @@ code {
   }
 }
 
-.btn {
-  border: none;
-
-  &.btn-warning {
-    background-color: $warning;
-  }
-
-  &.btn-info {
-    background-color: $info;
-  }
-
-  &.btn-secondary {
-    background-color: $secondary;
-
-    &.active {
-      background-color: darken($secondary, 10);
-    }
-  }
+.toast {
+  background-color: $dark !important;
 }
 
-.pagination {
-  background-color: $pagination-bg !important;
+html body .pagination {
+  background-color: $dark;
 
-  & > .page-item {
-    background-color: $pagination-bg !important;
+  & > li.page-item {
+    background-color: $dark;
 
-    &:hover, & > .page-link:hover {
-      background-color: lighten($pagination-bg, 15) !important;
-    }
-
-    & > .page-link:not(.active) {
-      background-color: $pagination-bg !important;
-      border: none;
+    &:not(.active), &:not(.active) > .page-link {
+      background-color: $dark;
       color: inherit;
     }
 
-    &.active > .page-link {
+    &:hover, & > .page-link:hover {
+      background-color: lighten($dark, 15%) !important;
+    }
+
+    &.active, &.active > .page-link {
       @extend .font-weight-bolder;
-      background-color: $light !important;
+      background-color: $light;
       color: $black;
     }
   }
-}
-
-.toast {
-  background-color: $toast-header-background-color !important;
 }

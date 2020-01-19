@@ -69,14 +69,14 @@ export default class Comment extends Component {
                 {comment.by}
               </Button>
             </p>
-            <p className="font-italic">{fmtUNIXTime(comment.time)}</p>
+            <p><time className="font-italic">{fmtUNIXTime(comment.time)}</time></p>
             <p dangerouslySetInnerHTML={{ __html: parser(lexer(comment.text || '')) }} />
             {comment.kids.length > 0 && (
               <div>
                 <Button
                   color={collapsed ? 'info' : 'warning'}
                   size="sm"
-                  className="mb-2 d-block mx-auto text-white"
+                  className="mb-2 d-block mx-auto text-white p-1"
                   style={{ width: '40%', maxWidth: '225px' }}
                   onClick={() => this.toggle()}
                 >
