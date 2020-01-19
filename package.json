@@ -105,7 +105,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "doc": "bash -c \"echo -e 'GENERATING DOCS\\n' && rm -rf ./docs && npx jsdoc --pedantic -d ./docs -R ./README* --recurse ./src ./bin ./examples && git add -f ./docs && git commit -am 'Update docs' -n\"",
+    "doc": "bash -c \"echo -e 'GENERATING DOCS\\n' && rm -rf ./docs && npx jsdoc --pedantic -d ./docs -R ./README* --recurse ./src && git add -f ./docs && git commit -am 'Update docs' -n\"",
     "doc:open": "bash -c \"npm run doc && $BROWSER ./docs/index.html\"",
     "lint": "bash -c \"npm run lint:json && npm run lint:code && npm run lint:doc && npm run lint:deps\"",
     "lint:code": "bash -c 'for i in \"$(git ls-files | grep \\.js$ | grep -v docs)\"; do echo $i && npx eslint ./$i; done'",
