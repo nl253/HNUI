@@ -20,7 +20,7 @@ import { fmtUNIXTime } from './utils';
 const User = ({ user, clearUser, isDisplayed }) => (isDisplayed && (
   <Toast style={{ bottom: '10px', right: '10px' }} className="position-fixed">
     <ToastHeader>
-      <p>
+      <p className="mb-1">
         User{' '}{user.id}{' '}({user.karma}{' '}karma)
       </p>
     </ToastHeader>
