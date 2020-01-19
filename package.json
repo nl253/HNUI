@@ -1,5 +1,5 @@
 {
-  "name": "hn_ui",
+  "name": "hn-ui",
   "version": "1.0.0",
   "description": "Hacker News UI",
   "readme": "https://github.com/nl253/HNUI/blob/master/README.md",
@@ -21,20 +21,21 @@
   "author": "Norbert Logiewa <norbertlogiewa96@gmail.com>",
   "maintainers": [
     {
+      "name": "Norbert Logiewa",
       "email": "norbertlogiewa96@gmail.com",
-      "name": "Norbert Logiewa"
+      "url": "https://github.com/nl253"
     }
   ],
   "contributors": [
     {
       "email": "norbertlogiewa96@gmail.com",
-      "name": "Norber Logiewa",
+      "name": "Norbert Logiewa",
       "url": "https://github.com/nl253"
     }
   ],
   "engines": {
-    "node": ">= 10.15.1",
-    "npm": ">= 6.4.1"
+    "node": ">=0.12",
+    "npm": ">=6.4.1"
   },
   "engineStrict": true,
   "browserslist": {
@@ -50,14 +51,14 @@
     ]
   },
   "dependencies": {
+    "bootstrap": "^4.2.1",
     "localforage": "^1.7.3",
     "marked": "^0.8.0",
-    "react-scripts": "3.3.0",
-    "node-sass": "^4.11.0",
-    "reactstrap": "^8.2.0",
-    "bootstrap": "^4.2.1",
+    "node-sass": "^4.13.1",
     "react": "^16.7.0",
-    "react-dom": "^16.7.0"
+    "react-dom": "^16.7.0",
+    "react-scripts": "3.3.0",
+    "reactstrap": "^8.2.0"
   },
   "devDependencies": {
     "eslint": "^6.7.1",
@@ -68,6 +69,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-security": "^1.4.0",
+    "husky": "^4.0.7",
     "jsdoc": "3.6.3",
     "jsonlint": "^1.6.3",
     "license-checker": "^25.0.1",
@@ -90,23 +92,32 @@
       "remark-preset-lint-consistent"
     ]
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run lint && npm run doc"
+    }
+  },
+  "bin": {
+    "api-test": "bin/index.js"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "doc": "bash -c \"echo -e 'GENERATING DOCS\\n' && rm -rf ./docs && npx jsdoc --pedantic -d ./docs -R ./README.md ./src/*.js\"",
+    "doc": "bash -c \"echo -e 'GENERATING DOCS\\n' && rm -rf ./docs && npx jsdoc --pedantic -d ./docs -R ./README* --recurse ./src ./bin ./examples && git add -f ./docs && git commit -am 'Update docs' -n\"",
     "doc:open": "bash -c \"npm run doc && $BROWSER ./docs/index.html\"",
-    "doc:publish": "git-bash -c \"echo -e 'PUBLISHING DOCS\\n' && npm run doc && git add -f ./docs && git commit -m 'Update docs' -n && git push\"",
-    "lint": "bash -c \"npm run lint:code && npm run lint:doc && npm run lint:deps\"",
-    "lint:code": "bash -c \"npx eslint ./src/*.js\"",
-    "lint:doc": "bash -c \"npm run lint:doc:markdown-lint && npm run lint:doc:write-good && npm run lint:doc:remark\"",
-    "lint:doc:write-good": "bash -c \"npx write-good --so --weasel --tooWordy --cliches --thereIs *.md || echo ''\"",
-    "lint:doc:markdown-lint": "bash -c \"npx markdownlint README.md\"",
-    "lint:doc:remark": "bash -c \"npx remark -u lint *.md\"",
-    "lint:deps": "bash -c \"npm run lint:deps:license && npm run lint:deps:security\"",
+    "lint": "bash -c \"npm run lint:json && npm run lint:code && npm run lint:doc && npm run lint:deps\"",
+    "lint:code": "bash -c 'for i in \"$(git ls-files | grep \\.js$ | grep -v docs)\"; do echo $i && npx eslint ./$i; done'",
+    "lint:json": "bash -c 'for i in \"$(git ls-files | grep \\.json$ | grep -v docs)\"; do echo $i && npx jsonlint ./$i; done'",
+    "lint:types": "bash -c \"npx jsdoc --pedantic -d ./docs -R ./README* --recurse ./src ./bin ./examples\"",
+    "lint:doc": "bash -c 'for i in \"$(git ls-files | grep \\.md$ | grep -v docs)\"; do echo $i && npm run lint:doc:markdown-lint && npm run lint:doc:write-good && npm run lint:doc:remark; done'",
+    "lint:doc:write-good": "bash -c 'for i in \"$(git ls-files | grep \\.md$ | grep -v docs)\"; do echo $i && npx write-good --so --weasel --tooWordy --cliches --thereIs $i || echo ''; done'",
+    "lint:doc:markdown-lint": "bash -c 'for i in \"$(git ls-files | grep \\.md$ | grep -v docs)\"; do echo $i && npx markdown-lint $i; done'",
+    "lint:doc:remark": "bash -c 'for i in \"$(git ls-files | grep \\.md$ | grep -v docs)\"; do echo $i && npx remark -u lint $i; done'",
+    "lint:deps": "bash -c \"npm audit && npm run lint:deps:license && npm run lint:deps:security\"",
     "lint:deps:security": "npx retire --js",
     "lint:deps:license": "npx license-checker --summary",
-    "loc": "bash -c \"tokei -- $(git ls-files | grep -v docs | grep -v bin)\""
+    "loc": "bash -c \"tokei -- $(git ls-files | grep -v docs)\""
   }
 }
