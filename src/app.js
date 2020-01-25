@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import {
-  clearCache,
-  loadItem,
-  loadStories,
-  loadUser,
-} from './api';
+import { clearCache, loadItem, loadStories, loadUser } from './api';
 import Paginator from './paginator';
 import Stories from './stories';
 import Story from './story';
@@ -27,6 +22,7 @@ export default class App extends Component {
     this.setStory = this.setStory.bind(this);
     this.setUser = this.setUser.bind(this);
     this.clearUser = this.clearUser.bind(this);
+    this.clearStory = this.clearStory.bind(this);
     this.changePage = this.changePage.bind(this);
     this.refreshStories = this.refreshStories.bind(this);
     this.initHistoryApi();
@@ -68,14 +64,16 @@ export default class App extends Component {
    * @return {Promise<void>}
    */
   async refreshStories() {
-    this.beginLoading('storyList');
     document.body.classList.add('loading');
-    this.setState({ storyList: [] });
+    this.beginLoading('storyList');
+    this.setState({ storyList: [], page: 0 });
     const { pageCount, pageSize } = this.state;
+    const EMPTY = {};
     for await (const story of loadStories('topstories', pageCount, pageSize)) {
-      this.setState((state) => ({
-        storyList: state.storyList.concat([story]),
-      }));
+      this.setState((state) => {
+        state.storyList.push(story);
+        return EMPTY;
+      });
     }
     this.endLoading('storyList');
     document.body.classList.remove('loading');
@@ -115,17 +113,14 @@ export default class App extends Component {
 
 
   /**
-   * @param {number} newPage
+   * @param {number|null} page
    * @param {boolean} [doSaveHistory]
    */
-  changePage(newPage, doSaveHistory = true) {
-    const { story, storyList, page } = this.state;
+  changePage(page, doSaveHistory = true) {
     if (doSaveHistory) {
-      App.saveHistory(newPage, story);
+      App.saveHistory(page, this.state.story);
     }
-    if (page !== newPage || storyList.length === 0) {
-      this.setState({ page: newPage });
-    }
+    this.setState({ page });
   }
 
   /**
@@ -143,21 +138,18 @@ export default class App extends Component {
   }
 
   clearStory() {
-    this.setStory(null);
+    this.setState({ story: null });
   }
 
   /**
-   * @param {Item|null} newStory
+   * @param {Item|null} story
    * @param {boolean} [doSaveHistory]
    */
-  setStory(newStory, doSaveHistory = true) {
-    const { page, story } = this.state;
+  setStory(story, doSaveHistory = true) {
     if (doSaveHistory) {
-      App.saveHistory(page, newStory);
+      App.saveHistory(this.state.page, story);
     }
-    if (story === null || newStory === null || story.id !== newStory.id) {
-      this.setState({ story: newStory });
-    }
+    this.setState({ story });
   }
 
   /**
@@ -192,10 +184,8 @@ export default class App extends Component {
             <Title refresh={async () => {
               const p = clearCache();
               this.clearStory();
-              this.clearUser();
               await p;
               await this.refreshStories();
-              this.changePage(this.state.page);
             }}
             />
             {!!story && (
@@ -226,7 +216,7 @@ export default class App extends Component {
               <div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none">
                 <Paginator
                   page={page}
-                  isDisabled={false}
+                  isDisabled={!this.didLoad('storyList')}
                   pageCount={pageCount}
                   changePage={this.changePage}
                 />
@@ -237,7 +227,7 @@ export default class App extends Component {
                 {story === null && (
                   <Paginator
                     page={page}
-                    isDisabled={false}
+                    isDisabled={!this.didLoad('storyList')}
                     pageCount={pageCount}
                     changePage={this.changePage}
                   />

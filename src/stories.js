@@ -1,28 +1,16 @@
 import React from 'react';
 import {
-  Badge, Button, ListGroup, ListGroupItem, Spinner,
+  Badge,
+  Button,
+  ListGroup,
+  ListGroupItem,
+  Spinner,
 } from 'reactstrap';
 
 export default class Stories extends React.Component {
   constructor(props) {
     super(props);
-    const { storyList, pageSize, page } = props;
-    this.state = {
-      storyList: storyList.slice(page * pageSize, (page + 1) * pageSize),
-    };
-  }
-
-  componentDidMount() {
-    this.reorder('freshness');
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { page, pageSize } = this.props;
-    // eslint-disable-next-line react/no-direct-mutation-state
-    this.state.storyList = this
-      .props
-      .storyList
-      .slice(page * pageSize, (page + 1) * pageSize);
+    this.state = { orderBy: 'hotness' };
   }
 
   /**
@@ -30,26 +18,30 @@ export default class Stories extends React.Component {
    *        |'votes'
    *        |'comments'
    *        |'hotness'
-   *        } sortBy
+   *        } orderBy
    */
-  reorder(sortBy) {
-    const {
-      storyList,
-      page,
-      pageSize,
-    } = this.props;
-    if (sortBy === 'freshness') {
+  reorder(orderBy) {
+    this.setState({ orderBy });
+  }
+
+  /**
+   * @return {Array<*>}
+   */
+  getOrdered() {
+    const { props } = this;
+    const { page, pageSize } = props;
+    const storyList = [...props.storyList];
+    const { orderBy } = this.state;
+    if (orderBy === 'freshness') {
       storyList.sort((x1, x2) => (x2.time >= x1.time ? 1 : -1));
-    } else if (sortBy === 'votes') {
+    } else if (orderBy === 'votes') {
       storyList.sort((x1, x2) => (x2.score >= x1.score ? 1 : -1));
-    } else if (sortBy === 'hotness') {
+    } else if (orderBy === 'hotness') {
       storyList.sort((x1, x2) => (x2.ord >= x1.ord ? 1 : -1));
-    } else if (sortBy === 'comments') {
+    } else if (orderBy === 'comments') {
       storyList.sort((x1, x2) => (x2.descendants >= x1.descendants ? 1 : -1));
     }
-    this.setState({
-      storyList: storyList.slice(page * pageSize, (page + 1) * pageSize),
-    });
+    return storyList.slice(page * pageSize, (page + 1) * pageSize);
   }
 
   /**
@@ -115,7 +107,7 @@ export default class Stories extends React.Component {
             </div>
 
             <ListGroup>
-              {this.state.storyList.map((s) => (
+              {this.getOrdered().map((s) => (
                 <ListGroupItem
                   key={s.id}
                   className="p-0 bg-transparent"

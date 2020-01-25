@@ -29,6 +29,11 @@ $dark: $gray-800;
   cursor: wait;
 }
 
+.disabled {
+  pointer-events: none;
+  cursor: wait;
+}
+
 .btn {
   text-align: center;
   vertical-align: center;

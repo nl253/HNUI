@@ -40,7 +40,7 @@ const Paginator = ({
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            if (!isDisabled) {
+            if (!isDisabled && page !== idx) {
               changePage(idx);
             }
           }}
