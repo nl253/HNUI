@@ -55,6 +55,7 @@ export default class App extends Component {
     this.setStory = this.setStory.bind(this);
     this.setUser = this.setUser.bind(this);
     this.clearUser = this.clearUser.bind(this);
+    this.clearStory = this.clearStory.bind(this);
     this.changePage = this.changePage.bind(this);
     this.refreshStories = this.refreshStories.bind(this);
     this.initHistoryApi();
@@ -96,14 +97,16 @@ export default class App extends Component {
    * @return {Promise&lt;void>}
    */
   async refreshStories() {
-    this.beginLoading('storyList');
     document.body.classList.add('loading');
-    this.setState({ storyList: [] });
+    this.beginLoading('storyList');
+    this.setState({ storyList: [], page: 0 });
     const { pageCount, pageSize } = this.state;
+    const EMPTY = {};
     for await (const story of loadStories('topstories', pageCount, pageSize)) {
-      this.setState((state) => ({
-        storyList: state.storyList.concat([story]),
-      }));
+      this.setState((state) => {
+        state.storyList.push(story);
+        return EMPTY;
+      });
     }
     this.endLoading('storyList');
     document.body.classList.remove('loading');
@@ -143,17 +146,14 @@ export default class App extends Component {
 
 
   /**
-   * @param {number} newPage
+   * @param {number|null} page
    * @param {boolean} [doSaveHistory]
    */
-  changePage(newPage, doSaveHistory = true) {
-    const { story, storyList, page } = this.state;
+  changePage(page, doSaveHistory = true) {
     if (doSaveHistory) {
-      App.saveHistory(newPage, story);
+      App.saveHistory(page, this.state.story);
     }
-    if (page !== newPage || storyList.length === 0) {
-      this.setState({ page: newPage });
-    }
+    this.setState({ page });
   }
 
   /**
@@ -171,21 +171,18 @@ export default class App extends Component {
   }
 
   clearStory() {
-    this.setStory(null);
+    this.setState({ story: null });
   }
 
   /**
-   * @param {Item|null} newStory
+   * @param {Item|null} story
    * @param {boolean} [doSaveHistory]
    */
-  setStory(newStory, doSaveHistory = true) {
-    const { page, story } = this.state;
+  setStory(story, doSaveHistory = true) {
     if (doSaveHistory) {
-      App.saveHistory(page, newStory);
+      App.saveHistory(this.state.page, story);
     }
-    if (story === null || newStory === null || story.id !== newStory.id) {
-      this.setState({ story: newStory });
-    }
+    this.setState({ story });
   }
 
   /**
@@ -220,10 +217,8 @@ export default class App extends Component {
             &lt;Title refresh={async () => {
               const p = clearCache();
               this.clearStory();
-              this.clearUser();
               await p;
               await this.refreshStories();
-              this.changePage(this.state.page);
             }}
             />
             {!!story &amp;&amp; (
@@ -254,7 +249,7 @@ export default class App extends Component {
               &lt;div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none">
                 &lt;Paginator
                   page={page}
-                  isDisabled={false}
+                  isDisabled={!this.didLoad('storyList')}
                   pageCount={pageCount}
                   changePage={this.changePage}
                 />
@@ -265,7 +260,7 @@ export default class App extends Component {
                 {story === null &amp;&amp; (
                   &lt;Paginator
                     page={page}
-                    isDisabled={false}
+                    isDisabled={!this.didLoad('storyList')}
                     pageCount={pageCount}
                     changePage={this.changePage}
                   />
@@ -323,13 +318,13 @@ export default class App extends Component {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Story.html">Story</a></li></ul><h3>Global</h3><ul><li><a href="global.html#beginLoading">beginLoading</a></li><li><a href="global.html#changePage">changePage</a></li><li><a href="global.html#checkValidServiceWorker">checkValidServiceWorker</a></li><li><a href="global.html#didLoad">didLoad</a></li><li><a href="global.html#endLoading">endLoading</a></li><li><a href="global.html#fmtUNIXTime">fmtUNIXTime</a></li><li><a href="global.html#getBadgeColor">getBadgeColor</a></li><li><a href="global.html#load">load</a></li><li><a href="global.html#loadItem">loadItem</a></li><li><a href="global.html#loadList">loadList</a></li><li><a href="global.html#loadStories">loadStories</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#Paginator">Paginator</a></li><li><a href="global.html#refreshStories">refreshStories</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#registerValidSW">registerValidSW</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reorder">reorder</a></li><li><a href="global.html#saveHistory">saveHistory</a></li><li><a href="global.html#setStory">setStory</a></li><li><a href="global.html#setUser">setUser</a></li><li><a href="global.html#Title">Title</a></li><li><a href="global.html#User">User</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Story.html">Story</a></li></ul><h3>Global</h3><ul><li><a href="global.html#beginLoading">beginLoading</a></li><li><a href="global.html#changePage">changePage</a></li><li><a href="global.html#checkValidServiceWorker">checkValidServiceWorker</a></li><li><a href="global.html#didLoad">didLoad</a></li><li><a href="global.html#endLoading">endLoading</a></li><li><a href="global.html#fmtUNIXTime">fmtUNIXTime</a></li><li><a href="global.html#getBadgeColor">getBadgeColor</a></li><li><a href="global.html#getOrdered">getOrdered</a></li><li><a href="global.html#load">load</a></li><li><a href="global.html#loadItem">loadItem</a></li><li><a href="global.html#loadList">loadList</a></li><li><a href="global.html#loadStories">loadStories</a></li><li><a href="global.html#loadUser">loadUser</a></li><li><a href="global.html#Paginator">Paginator</a></li><li><a href="global.html#refreshStories">refreshStories</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#registerValidSW">registerValidSW</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#reorder">reorder</a></li><li><a href="global.html#saveHistory">saveHistory</a></li><li><a href="global.html#setStory">setStory</a></li><li><a href="global.html#setUser">setUser</a></li><li><a href="global.html#Title">Title</a></li><li><a href="global.html#User">User</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sun Jan 19 2020 19:26:49 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Jan 25 2020 16:05:37 GMT+0000 (Greenwich Mean Time)
 </footer>
 
 <script> prettyPrint(); </script>
