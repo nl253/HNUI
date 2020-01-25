@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
-import { clearCache, loadItem, loadStories, loadUser } from './api';
+import {
+  clearCache,
+  loadItem,
+  loadStories,
+  loadUser,
+} from './api';
 import Paginator from './paginator';
 import Stories from './stories';
 import Story from './story';
