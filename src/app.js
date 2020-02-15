@@ -73,12 +73,10 @@ export default class App extends Component {
     this.beginLoading('storyList');
     this.setState({ storyList: [], page: 0 });
     const { pageCount, pageSize } = this.state;
-    const EMPTY = {};
     for await (const story of loadStories('topstories', pageCount, pageSize)) {
-      this.setState((state) => {
-        state.storyList.push(story);
-        return EMPTY;
-      });
+      this.setState(({ storyList }) => ({
+        storyList: storyList.concat([story]),
+      }));
     }
     this.endLoading('storyList');
     document.body.classList.remove('loading');
@@ -198,7 +196,8 @@ export default class App extends Component {
                 <Stories
                   page={page}
                   pageSize={pageSize}
-                  isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+                  pageCount={pageCount}
+                  isLoading={!this.didLoad('storyList')}
                   setStory={this.setStory}
                   story={story}
                   storyList={storyList}
@@ -209,8 +208,9 @@ export default class App extends Component {
               <div className="">
                 <Stories
                   page={page}
+                  pageCount={pageCount}
                   pageSize={pageSize}
-                  isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+                  isLoading={!this.didLoad('storyList')}
                   setStory={this.setStory}
                   story={story}
                   storyList={storyList}
@@ -221,8 +221,8 @@ export default class App extends Component {
               <div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none">
                 <Paginator
                   page={page}
-                  isDisabled={!this.didLoad('storyList')}
                   pageCount={pageCount}
+                  isDisabled={!this.didLoad('storyList')}
                   changePage={this.changePage}
                 />
               </div>
