@@ -68,20 +68,18 @@ export default class Stories extends React.Component {
   }
 
   render() {
-    const { props: { isLoading, setStory, story, storyList, page }, state: { storyListOrdered } } = this;
+    const { props: { isLoading, setStory, story, storyList, page, pageSize, pageCount }, state: { storyListOrdered } } = this;
     return (
       isLoading
         ? (
           <p className="mx-auto text-center" style={{ fontSize: '1.35rem' }}>
             Loading
-            <br/>
-            {'.'.repeat(1 + new Date().getSeconds() % 6)}
+            <progress
+              className="mb-5 mt-4 d-block mx-auto"
+              value={storyList.length}
+              max={Math.floor(pageCount * pageSize)}
+            />
           </p>
-          // <Spinner
-          //   className="mt-5 mr-auto ml-auto d-block"
-          //   color="secondary"
-          //   style={{ width: '3rem', height: '3rem' }}
-          // />
         )
         : (
           <div className="mt-sm-2 mt-md-2 mt-lg-3 mt-xl-3 mt-sm-0">

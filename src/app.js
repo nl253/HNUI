@@ -255,7 +255,6 @@ export default class App extends Component {
               </div>
             )}
             <Story
-              isLoading={!user && !this.didLoad('user')}
               isDisplayed={!!story}
               setUser={this.setUser}
               story={story}
