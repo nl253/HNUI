@@ -53,6 +53,7 @@ export default class Stories extends React.Component {
     const storyListOrdered = [...storyList].sort(f).slice(page * pageSize, (page + 1) * pageSize);
     this.setState({ orderBy, storyListOrdered });
   }
+
   /**
    * @param {number} score
    * @returns {'danger'|'warning'|'primary'}

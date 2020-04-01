@@ -31,15 +31,9 @@ jobs:
       - name: Lint Code
         shell: bash
         run: npm run lint:code
-      - name: Lint Docs
-        shell: bash
-        run: npm run lint:doc
       - name: Lint Dependencies
         shell: bash
         run: npm run lint:deps
       - name: Check JSDoc Types
         shell: bash
         run: npm run lint:types
-#      - name: Test Code
-#        shell: bash
-#        run: npm test

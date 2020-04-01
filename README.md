@@ -1,4 +1,3 @@
 # Hacker News UI
 
-- Deployed [link](https://hn-nl.herokuapp.com/)
-- API Docs [link](https://nl253.github.io/HNUI)
+Deployed [link](https://hacker-news.norbert-logiewa.co.uk).
