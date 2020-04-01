@@ -25,7 +25,7 @@ export default class Stories extends React.Component {
   }
 
   /**
-   * @return {Array<*>}
+   * @return {Array<Item>}
    */
   getOrdered() {
     const { props } = this;
