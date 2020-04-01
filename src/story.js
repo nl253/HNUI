@@ -14,7 +14,9 @@ import UserBtn from './user-btn';
  * @constructor
  */
 const Story = ({
-  isDisplayed, story, isLoading, setUser,
+  isDisplayed,
+  story,
+  setUser,
 }) => isDisplayed && (
   <div>
     <h2 className="h2 mt-2">

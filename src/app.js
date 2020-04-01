@@ -30,19 +30,7 @@ export default class App extends Component {
     this.clearStory = this.clearStory.bind(this);
     this.changePage = this.changePage.bind(this);
     this.refreshStories = this.refreshStories.bind(this);
-    this.initHistoryApi();
-  }
-
-  initHistoryApi() {
-    window.onpopstate = (o) => {
-      if (o.state !== null) {
-        const { story, page } = o.state;
-        if (story !== null) {
-          this.setStory(story, false);
-        }
-        this.changePage(page, false);
-      }
-    };
+    window.onpopstate = (o) => this.setState({ ...o.state });
   }
 
   async componentDidMount() {
@@ -73,12 +61,10 @@ export default class App extends Component {
     this.beginLoading('storyList');
     this.setState({ storyList: [], page: 0 });
     const { pageCount, pageSize } = this.state;
-    const EMPTY = {};
     for await (const story of loadStories('topstories', pageCount, pageSize)) {
-      this.setState((state) => {
-        state.storyList.push(story);
-        return EMPTY;
-      });
+      this.setState(({ storyList }) => ({
+        storyList: storyList.concat([story]),
+      }));
     }
     this.endLoading('storyList');
     document.body.classList.remove('loading');
@@ -123,7 +109,7 @@ export default class App extends Component {
    */
   changePage(page, doSaveHistory = true) {
     if (doSaveHistory) {
-      App.saveHistory(page, this.state.story);
+      this.saveHistory({ ...this.state, page });
     }
     this.setState({ page });
   }
@@ -152,22 +138,23 @@ export default class App extends Component {
    */
   setStory(story, doSaveHistory = true) {
     if (doSaveHistory) {
-      App.saveHistory(this.state.page, story);
+      this.saveHistory({ ...this.state, story });
     }
     this.setState({ story });
   }
 
   /**
-   * @param {number} newPage
-   * @param {Item|null} newStory
+   * @param {Record<string, *>} state
    */
-  static saveHistory(newPage, newStory) {
-    if (newStory === null) {
-      window.history.pushState({ story: null, page: newPage }, `Hacker News p. ${newPage}`, `/${newPage}`);
-    } else {
-      const { title, id } = newStory;
-      window.history.pushState({ story: newStory, page: newPage }, `Hacker News "${title}" p. ${newPage}`, `/${newPage}/${id}`);
+  saveHistory(state) {
+    const { page, story } = state;
+    let title = `HN UI - page ${page}`;
+    let url = `/${page}`;
+    if (story !== null) {
+      url += `/${story.id}`;
+      title += ` "${story.title}"`;
     }
+    window.history.pushState(state, title, url);
   }
 
   /**
@@ -198,7 +185,8 @@ export default class App extends Component {
                 <Stories
                   page={page}
                   pageSize={pageSize}
-                  isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+                  pageCount={pageCount}
+                  isLoading={!this.didLoad('storyList')}
                   setStory={this.setStory}
                   story={story}
                   storyList={storyList}
@@ -209,8 +197,9 @@ export default class App extends Component {
               <div className="">
                 <Stories
                   page={page}
+                  pageCount={pageCount}
                   pageSize={pageSize}
-                  isLoading={storyList.length === 0 && !this.didLoad('storyList')}
+                  isLoading={!this.didLoad('storyList')}
                   setStory={this.setStory}
                   story={story}
                   storyList={storyList}
@@ -221,8 +210,8 @@ export default class App extends Component {
               <div className="mt-3 d-none d-xl-block d-lg-block d-md-block d-sm-none">
                 <Paginator
                   page={page}
-                  isDisabled={!this.didLoad('storyList')}
                   pageCount={pageCount}
+                  isDisabled={!this.didLoad('storyList')}
                   changePage={this.changePage}
                 />
               </div>
@@ -255,7 +244,6 @@ export default class App extends Component {
               </div>
             )}
             <Story
-              isLoading={!user && !this.didLoad('user')}
               isDisplayed={!!story}
               setUser={this.setUser}
               story={story}
