@@ -13,10 +13,10 @@ test:
     - nvm install 12
     - nvm use 12
     - npm install
-    - npm run lint:json
-    - npm run lint:code
-    - npm run lint:deps
-    - npm run lint:deps:security
+    - for i in "$(find -type f -name '*.json' | grep -v node_modules)"; do echo $i && npx jsonlint ./$i; done
+    - for i in "$(find -type f -name '*.js' | grep -v node_modules)"; do echo $i && npx eslint ./$i; done
+    - npm audit
+    - npx retire --js
     - npm run lint:deps:license
-    - npm run lint:types
+    - npx license-checker --summary
     - npm run-script build
