@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 import {
   Badge,
@@ -21,10 +22,10 @@ export default class Stories extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
-      this.props.story !== prevProps.story ||
-      this.props.isLoading !== prevProps.isLoading ||
-      prevProps.page !== this.props.page ||
-      prevState.orderBy !== this.state.orderBy) {
+      this.props.story !== prevProps.story
+      || this.props.isLoading !== prevProps.isLoading
+      || prevProps.page !== this.props.page
+      || prevState.orderBy !== this.state.orderBy) {
       this.reorder(this.state.orderBy, this.props.page, this.props.storyList);
     }
   }
@@ -69,7 +70,11 @@ export default class Stories extends React.Component {
   }
 
   render() {
-    const { props: { isLoading, setStory, story, storyList, page, pageSize, pageCount }, state: { storyListOrdered } } = this;
+    const {
+      props: {
+        isLoading, setStory, story, storyList, page, pageSize, pageCount,
+      }, state: { storyListOrdered },
+    } = this;
     return (
       isLoading
         ? (
