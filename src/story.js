@@ -1,6 +1,5 @@
 /* eslint-disable react/no-danger */
 import React from 'react';
-import { Button } from 'reactstrap';
 
 import Comment from './comment';
 import UserBtn from './user-btn';
