@@ -1,9 +1,21 @@
 test:
+  image: ubuntu:latest
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME"
+    paths:
+      - build/
   script:
+    - apt install -y curl
+    - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+    - export NVM_DIR="$HOME/.nvm"
+    - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+    - nvm install 12
+    - nvm use 12
+    - npm install
+    - npm run build
     - npm run lint:code
     - npm run lint:json
     - npm run lint:types
     - npm run lint:deps
     - npm run lint:deps:security
     - npm run lint:deps:license
-    - npm run build
