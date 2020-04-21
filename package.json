@@ -93,14 +93,6 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "lint": "bash -c \"npm run lint:json && npm run lint:code && npm run lint:deps\"",
-    "lint:code": "bash -c 'for i in \"$(git ls-files | grep \\.js$ | grep -v docs)\"; do echo $i && npx eslint ./$i; done'",
-    "lint:json": "bash -c 'for i in \"$(git ls-files | grep \\.json$ | grep -v docs)\"; do echo $i && npx jsonlint ./$i; done'",
-    "lint:types": "bash -c \"npx jsdoc --pedantic -d ./docs -R ./README* --recurse ./src\"",
-    "lint:deps": "bash -c \"npm audit && npm run lint:deps:license && npm run lint:deps:security\"",
-    "lint:deps:security": "npx retire --js",
-    "lint:deps:license": "npx license-checker --summary",
-    "loc": "bash -c \"tokei -- $(git ls-files | grep -v docs)\""
+    "eject": "react-scripts eject"
   }
 }

@@ -13,9 +13,9 @@ test:
     - nvm install 12
     - nvm use 12
     - npm install
-    - for i in "$(find -type f -name '*.json' | grep -v node_modules)"; do echo $i && npx jsonlint ./$i; done
-    - for i in "$(find -type f -name '*.js' | grep -v node_modules)"; do echo $i && npx eslint ./$i; done
-    - npm audit
+    - for i in "$(find -type f -name '*.json' -not -path '**/node_modules/**' | grep -v node_modules)"; do echo $i && npx jsonlint ./$i; done
+    - for i in "$(find -type f -name '*.js' -not -path '**/node_modules/**' | grep -v node_modules)"; do echo $i && npx eslint ./$i; done
+    - npm audit --json &>/dev/null
     - npx retire --js
     - npm run lint:deps:license
     - npx license-checker --summary
