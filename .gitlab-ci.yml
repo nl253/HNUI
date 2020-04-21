@@ -1,0 +1,9 @@
+test:
+  script:
+    - npm run lint:code
+    - npm run lint:json
+    - npm run lint:types
+    - npm run lint:deps
+    - npm run lint:deps:security
+    - npm run lint:deps:license
+    - npm run build
