@@ -69,26 +69,11 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.17.0",
     "eslint-plugin-security": "^1.4.0",
-    "husky": "^4.0.7",
     "jsdoc": "3.6.3",
     "jsonlint": "^1.6.3",
-    "license-checker": "^25.0.1",
-    "retire": "^2.0.3"
+    "license-checker": "^25.0.1"
   },
   "private": true,
-  "remarkConfig": {
-    "plugins": [
-      "remark-preset-lint-recommended",
-      "remark-preset-lint-markdown-style-guide",
-      "remark-preset-lint-consistent"
-    ]
-  },
-  "husky": {
-    "hooks": {}
-  },
-  "bin": {
-    "api-test": "bin/index.js"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

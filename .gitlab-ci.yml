@@ -15,8 +15,6 @@ test:
     - npm install
     - for i in "$(find -type f -name '*.json' -not -path '**/node_modules/**' | grep -v node_modules)"; do echo $i && npx jsonlint ./$i; done
     - for i in "$(find -type f -name '*.js' -not -path '**/node_modules/**' | grep -v node_modules)"; do echo $i && npx eslint ./$i; done
-    - npm audit --json &>/dev/null
-    - npx retire --js
-    - npm run lint:deps:license
-    - npx license-checker --summary
+    # - npm audit --json --production &>/dev/null
+    - npx license-checker --excludePackages hn-ui@1.0.0 --summary
     - npm run-script build
