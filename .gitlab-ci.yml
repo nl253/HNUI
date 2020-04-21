@@ -5,6 +5,12 @@ test:
     paths:
       - build/
   script:
+    - npm run lint:json
+    - npm run lint:code
+    - npm run lint:deps
+    - npm run lint:deps:security
+    - npm run lint:deps:license
+    - npm run lint:types
     - apt update
     - apt install -y curl
     - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
@@ -14,9 +20,3 @@ test:
     - nvm use 12
     - npm install
     - npm run-script build
-    - npm run lint:code
-    - npm run lint:json
-    - npm run lint:types
-    - npm run lint:deps
-    - npm run lint:deps:security
-    - npm run lint:deps:license
